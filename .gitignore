@@ -1,0 +1,5 @@
+build
+pyairstage
+pyairstage.egg-info
+__pycache__
+tags

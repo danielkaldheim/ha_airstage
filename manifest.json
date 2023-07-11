@@ -1,0 +1,17 @@
+{
+  "domain": "airstage",
+  "name": "Airstage Fujitsu",
+  "codeowners": [
+    "@danielkaldheim"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://www.home-assistant.io/integrations/airstage",
+  "homekit": {},
+  "iot_class": "cloud_polling",
+  "requirements": [
+    "pyairstage"
+  ],
+  "ssdp": [],
+  "zeroconf": []
+}
