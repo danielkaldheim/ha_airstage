@@ -11,9 +11,9 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/danielkaldheim/ha_airstage/issues",
   "requirements": [
-    "pyairstage>=1.0.1"
+    "pyairstage>=1.0.2"
   ],
   "ssdp": [],
   "zeroconf": [],
-  "version": "1.0.1"
+  "version": "1.0.2"
 }

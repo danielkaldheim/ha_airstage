@@ -24,7 +24,11 @@ from .const import AIRSTAGE_RETRY, DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 AIRSTAGE_SYNC_INTERVAL = 120
-PLATFORMS: list[Platform] = [Platform.CLIMATE]
+PLATFORMS: list[Platform] = [
+    Platform.CLIMATE,
+    Platform.SENSOR,
+    Platform.SWITCH,
+]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

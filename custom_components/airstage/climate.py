@@ -18,7 +18,7 @@ from homeassistant.components.climate import (
     HVACMode,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_TEMPERATURE, PRECISION_WHOLE, UnitOfTemperature
+from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -205,6 +205,7 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     async def async_set_fan_mode(self, fan_mode: str) -> None:
         """Set the Fan Mode."""
         await self._ac.set_fan_speed(HA_FAN_TO_FUJITSU[fan_mode])
+        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
 
     async def async_set_swing_mode(self, swing_mode: str) -> None:
         if swing_mode == VERTICAL_SWING:
