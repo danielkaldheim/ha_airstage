@@ -5,6 +5,10 @@
 - Climate integration for Fujitsu Airstage air conditioners.
 - Control fan speed, temperature, heat mode, cool mode.
 
+![Example](./docs/Screenshot-device.png)
+
+![Example](./docs/Screenshot-climate.png)
+
 ## Configuration
 
 After install go to "Add integration" and search after Airstage Fujitsu.
