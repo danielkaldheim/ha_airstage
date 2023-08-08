@@ -2,8 +2,19 @@
 
 ## Features
 
-- Climate integration for Fujitsu Airstage air conditioners.
-- Control fan speed, temperature, heat mode, cool mode.
+Climate integration for Fujitsu Airstage air conditioners.
+
+Controls:
+
+- AC operation
+- Temperature
+- Fan mode
+- Swing mode
+- Economy mode
+- Energy saving fan mode
+- Outdoor unit low noise mode
+- Powerful mode
+- Quiet fan mode
 
 ![Example](./docs/Screenshot-device.png)
 
@@ -15,7 +26,7 @@ After install go to "Add integration" and search after Airstage Fujitsu.
 
 ### Control modes
 
-There are two ways to control the device
+There are two ways to connect to your Airstage devices
 
 - Local (recommended)
 - Cloud
@@ -33,7 +44,8 @@ The device id is the same as the MAC address exept the ":". Or you can scan the 
 
 WARING: while writing this code and testing against the Airstage rest api I was locked out from the service. They blocked my public IP from using the api (which effects also the mobile app). The local environment still works, but the app want you to change wifi to the local hot-spot on the device, which sucks. The local mode on this integration still work even my public ip is blocked.
 
-You need your email and password used on the Airstage app. Also you need your country, my case it was Norway.
+You need your email and password used on the Airstage app. Also you need your country, my case it was Norway. Will add all your Airstage devices connected to the account.
+
 ![Cloud mode](./docs/Screenshot-step2-cloud.png)
 
 
