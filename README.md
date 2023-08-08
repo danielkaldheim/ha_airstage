@@ -4,6 +4,8 @@
 
 Connects your Fujitsu Airstage air conditioner to Home Assistant.
 
+![Example](./docs/Screenshot-device.png)
+
 ## Quick start
 
 1. Go to the "Integrations" section on HACS, click "Explore and download repositories" and search for "airstage", then click "Download this repository with HACS".
