@@ -8,11 +8,14 @@
   "dependencies": [],
   "documentation": "https://www.home-assistant.io/integrations/airstage",
   "homekit": {},
-  "iot_class": "cloud_polling",
+  "iot_class": [
+    "cloud_polling",
+    "local_polling"
+  ],
   "requirements": [
-    "pyairstage"
+    "pyairstage==1.0.1"
   ],
   "ssdp": [],
   "zeroconf": [],
-  "version": "1.0.0"
+  "version": "1.0.1"
 }

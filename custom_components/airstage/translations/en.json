@@ -9,11 +9,26 @@
             "unknown": "Unexpected error"
         },
         "step": {
-            "user": {
+            "details": {
                 "data": {
+                    "local": "Local",
+                    "cloud": "Cloud",
+                    "device_id": "Device ID",
+                    "ip_address": "IP address",
                     "host": "Host",
                     "password": "Password",
-                    "username": "Username"
+                    "username": "Username",
+                    "select_polling_desc": "DESC 1"
+                }
+            },
+            "user": {
+                "data": {
+                    "local": "Local",
+                    "cloud": "Cloud",
+                    "host": "Host",
+                    "password": "Password",
+                    "username": "Username",
+                    "select_polling_desc": "DESC 2"
                 }
             }
         }

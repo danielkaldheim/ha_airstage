@@ -14,3 +14,9 @@ VERTICAL_LOWEST = "Lowest"
 
 
 FAN_QUIET = "Quiet"
+
+
+CONF_LOCAL = "local"
+CONF_CLOUD = "cloud"
+CONF_SELECT_POLLING = "select_polling"
+CONF_SELECT_POLLING_DESCRIPTION = "select_polling_desc"

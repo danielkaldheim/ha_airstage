@@ -5,7 +5,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from pyairstage.airstageAC import AirstageAC
-from pyairstage.api import ApiError
+from pyairstage.airstageApi import ApiError
 
 from .const import DOMAIN
 from .models import AirstageData

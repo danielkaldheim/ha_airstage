@@ -145,7 +145,9 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""
+
         await self._ac.set_target_temperature(kwargs.get(ATTR_TEMPERATURE))
+        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
 
     @property
     def current_temperature(self) -> float | None:
@@ -182,10 +184,12 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     async def async_turn_on(self) -> None:
         """Set the HVAC State to on."""
         await self._ac.turn_on()
+        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
 
     async def async_turn_off(self) -> None:
         """Set the HVAC State to off."""
         await self._ac.turn_off()
+        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set the HVAC Mode and State."""
@@ -196,6 +200,7 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
             if self._ac.get_device_on_off_state() == constants.BooleanDescriptors.OFF:
                 await self._ac.turn_on()
             await self._ac.set_operation_mode(HA_STATE_TO_FUJITSU[hvac_mode])
+        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:
         """Set the Fan Mode."""
@@ -206,3 +211,4 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
             await self._ac.set_vertical_swing(constants.BooleanProperty.ON)
         else:
             await self._ac.set_vertical_direction(HA_SWING_TO_FUJITSU[swing_mode])
+        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
