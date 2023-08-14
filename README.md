@@ -1,4 +1,4 @@
-# Airstage Home Assistant component
+# Fujitsu Airstage Home Assistant component
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
 
