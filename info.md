@@ -20,9 +20,11 @@ Controls:
 
 ![Example](./docs/Screenshot-climate.png)
 
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/danielkaldheim)
+
 ## Configuration
 
-After install go to "Add integration" and search after Airstage Fujitsu.
+After install go to "Add integration" and search after Fujitsu Airstage.
 
 ### Control modes
 
@@ -51,6 +53,4 @@ You need your email and password used on the Airstage app. Also you need your co
 
 ## Documentation
 
-Please visit the
-[Readme](https://raw.githubusercontent.com/danielkaldheim/ha_airstage/main/README.md) for full
-documentation.
+Please visit the [Readme](https://raw.githubusercontent.com/danielkaldheim/ha_airstage/main/README.md) for full documentation.
