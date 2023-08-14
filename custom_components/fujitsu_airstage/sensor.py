@@ -10,29 +10,11 @@ import voluptuous as vol
 from pyairstage import constants
 from .entity import AirstageAcEntity
 from .models import AirstageData
-
 from homeassistant.util import slugify
-
-from homeassistant.components.climate import (
-    FAN_AUTO,
-    FAN_HIGH,
-    FAN_LOW,
-    FAN_MEDIUM,
-    ClimateEntity,
-    ClimateEntityFeature,
-    HVACMode,
-)
 
 from .const import (
     DOMAIN as AIRSTAGE_DOMAIN,
-    FAN_QUIET,
-    VERTICAL_HIGH,
-    VERTICAL_HIGHEST,
-    VERTICAL_LOW,
-    VERTICAL_LOWEST,
-    VERTICAL_SWING,
 )
-
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -44,8 +26,6 @@ from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
-_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(

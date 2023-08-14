@@ -1,6 +1,6 @@
 """Constants for the Airstage Fujitsu integration."""
 
-DOMAIN = "airstage"
+DOMAIN = "fujitsu_airstage"
 AIRSTAGE_RETRY = 10
 
 

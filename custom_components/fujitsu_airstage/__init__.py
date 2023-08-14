@@ -62,7 +62,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         coordinator = DataUpdateCoordinator(
             hass,
             _LOGGER,
-            name="Airstage Fujitsu",
+            name="Fujitsu Airstage",
             update_method=async_get,
             update_interval=timedelta(seconds=AIRSTAGE_SYNC_INTERVAL),
         )
@@ -97,7 +97,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         coordinator = DataUpdateCoordinator(
             hass,
             _LOGGER,
-            name="Airstage Fujitsu",
+            name="Fujitsu Airstage",
             update_method=async_get,
             update_interval=timedelta(seconds=AIRSTAGE_SYNC_INTERVAL),
         )

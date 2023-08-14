@@ -50,7 +50,7 @@ class AirstageAcEntity(AirstageEntity):
 
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self._attr_unique_id)},
-            manufacturer="Airstage",
+            manufacturer="Fujitsu Airstage",
             model=self.coordinator.data[self.ac_key]["model"],
             name=self.coordinator.data[self.ac_key]["deviceName"],
         )
