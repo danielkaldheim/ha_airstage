@@ -1,15 +1,13 @@
-name: hassfest Validation
+name: Hassfest Validation
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - master
-      - version-0.7.x
+      - main
   pull_request:
     branches:
-      - master
-      - version-0.7.x
+      - main
   schedule:
     - cron: '0 1 * * *'
 

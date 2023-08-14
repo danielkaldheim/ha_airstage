@@ -2,11 +2,11 @@
   "domain": "fujitsu_airstage",
   "name": "Fujitsu Airstage",
   "codeowners": ["@danielkaldheim"],
+  "config_flow": true,
   "dependencies": [],
   "documentation": "https://www.home-assistant.io/integrations/fujitsu_airstage",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/danielkaldheim/ha_airstage/issues",
   "requirements": ["pyairstage>=1.0.2"],
-  "config_flow": true,
   "version": "1.0.3"
 }
