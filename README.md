@@ -1,10 +1,15 @@
 # Fujitsu Airstage Home Assistant component
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
+![Version](https://img.shields.io/github/v/release/danielkaldheim/ha_airstage?style=for-the-badge)
+![Downloads](https://img.shields.io/github/downloads/danielkaldheim/ha_airstage/total?style=for-the-badge)
+![Contributors](https://img.shields.io/github/contributors/danielkaldheim/ha_airstage?style=for-the-badge)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
 Connects your Fujitsu Airstage air conditioner to Home Assistant.
 
 ![Example](./docs/Screenshot-device.png)
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/danielkaldheim)
 
 ## Installation
 
