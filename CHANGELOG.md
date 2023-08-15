@@ -1,3 +1,10 @@
+## [1.0.6](https://github.com/danielkaldheim/ha_airstage/compare/v1.0.5...v1.0.6) (2023-08-15)
+
+
+### Bug Fixes
+
+* **import:** hotfix, typo in import ([e952a5f](https://github.com/danielkaldheim/ha_airstage/commit/e952a5f76171f8d60cddc8b7ed1de5fed03b6052))
+
 ## [1.0.5](https://github.com/danielkaldheim/ha_airstage/compare/v1.0.4...v1.0.5) (2023-08-15)
 
 
