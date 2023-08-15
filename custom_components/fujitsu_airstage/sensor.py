@@ -39,19 +39,25 @@ async def async_setup_entry(
     entities: list[SensorEntity] = []
     if devices := instance.coordinator.data:
         for ac_key in devices:
-            entities.append(
-                AirstageTemp(
-                    instance, ac_key, constants.ACParameter.INDOOR_TEMPERATURE, "Indoor"
+            data = {x["name"]: x for x in devices[ac_key]["parameters"]}
+            if data["iu_indoor_tmp"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+                entities.append(
+                    AirstageTemp(
+                        instance,
+                        ac_key,
+                        constants.ACParameter.INDOOR_TEMPERATURE,
+                        "Indoor",
+                    )
                 )
-            )
-            entities.append(
-                AirstageTemp(
-                    instance,
-                    ac_key,
-                    constants.ACParameter.OUTDOOR_TEMPERATURE,
-                    "Outdoor",
+            if data["iu_outdoor_tmp"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+                entities.append(
+                    AirstageTemp(
+                        instance,
+                        ac_key,
+                        constants.ACParameter.OUTDOOR_TEMPERATURE,
+                        "Outdoor",
+                    )
                 )
-            )
 
     async_add_entities(entities)
 

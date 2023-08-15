@@ -3,6 +3,10 @@ import logging
 from typing import Any
 
 from pyairstage import constants
+
+from homeassistant.components.fujitsu_airstage.pyairstage.pyairstage.constants import (
+    ACParameter,
+)
 from .entity import AirstageAcEntity
 from .models import AirstageData
 from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
@@ -27,11 +31,17 @@ async def async_setup_entry(
     entities: list[SwitchEntity] = []
     if devices := instance.coordinator.data:
         for ac_key in devices:
-            entities.append(AirstageEcoSwitch(instance, ac_key))
-            entities.append(AirstagePowerfulSwitch(instance, ac_key))
-            entities.append(AirstageOutdoorLowNoiseSwitch(instance, ac_key))
-            entities.append(AirstageEnergySaveFanSwitch(instance, ac_key))
-            entities.append(AirstageQuietFanSwitch(instance, ac_key))
+            data = {x["name"]: x for x in devices[ac_key]["parameters"]}
+            if data["iu_economy"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+                entities.append(AirstageEcoSwitch(instance, ac_key))
+            if data["iu_powerful"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+                entities.append(AirstagePowerfulSwitch(instance, ac_key))
+            if data["ou_low_noise"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+                entities.append(AirstageOutdoorLowNoiseSwitch(instance, ac_key))
+            if data["iu_fan_ctrl"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+                entities.append(AirstageEnergySaveFanSwitch(instance, ac_key))
+            if data["iu_fan_spd"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+                entities.append(AirstageQuietFanSwitch(instance, ac_key))
 
     async_add_entities(entities)
 

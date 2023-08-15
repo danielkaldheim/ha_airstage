@@ -48,6 +48,7 @@ FUJITSU_TO_HA_STATE = {
     constants.OperationModeDescriptors.HEAT: HVACMode.HEAT,
     constants.OperationModeDescriptors.AUTO: HVACMode.AUTO,
     constants.OperationModeDescriptors.OFF: HVACMode.OFF,
+    constants.CAPABILITY_NOT_AVAILABLE: None,
 }
 
 FUJITSU_FAN_TO_HA = {
@@ -56,6 +57,7 @@ FUJITSU_FAN_TO_HA = {
     constants.FanSpeedDescriptors.MEDIUM: FAN_MEDIUM,
     constants.FanSpeedDescriptors.HIGH: FAN_HIGH,
     constants.FanSpeedDescriptors.AUTO: FAN_AUTO,
+    constants.CAPABILITY_NOT_AVAILABLE: None,
 }
 
 HA_FAN_TO_FUJITSU = {
@@ -78,8 +80,16 @@ FUJITSU_SWING_TO_HA = {
     constants.VerticalPositionDescriptors.HIGH: VERTICAL_HIGH,
     constants.VerticalPositionDescriptors.LOW: VERTICAL_LOW,
     constants.VerticalPositionDescriptors.LOWEST: VERTICAL_LOWEST,
+    constants.CAPABILITY_NOT_AVAILABLE: None,
 }
 
+SWING_MODES = [
+    VERTICAL_SWING,
+    VERTICAL_HIGHEST,
+    VERTICAL_HIGH,
+    VERTICAL_LOW,
+    VERTICAL_LOWEST,
+]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -120,20 +130,6 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         HVACMode.AUTO,
     ]
 
-    _attr_swing_modes = [
-        VERTICAL_SWING,
-        VERTICAL_HIGHEST,
-        VERTICAL_HIGH,
-        VERTICAL_LOW,
-        VERTICAL_LOWEST,
-    ]
-
-    _attr_supported_features = (
-        ClimateEntityFeature.TARGET_TEMPERATURE
-        | ClimateEntityFeature.FAN_MODE
-        | ClimateEntityFeature.SWING_MODE
-    )
-
     def __init__(self, instance: AirstageData, ac_key: str) -> None:
         """Initialize an AdvantageAir AC unit."""
         super().__init__(instance, ac_key)
@@ -173,9 +169,18 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
 
         Requires ClimateEntityFeature.SWING_MODE.
         """
-        if self._ac.get_vertical_swing() == constants.BooleanDescriptors.ON:
-            return VERTICAL_SWING
-        return FUJITSU_SWING_TO_HA[self._ac.get_vertical_direction()]
+
+        if self._ac.get_vertical_swing() != None:
+            if self._ac.get_vertical_swing() == constants.BooleanDescriptors.ON:
+                return VERTICAL_SWING
+
+        if self._ac.get_vertical_direction() != None:
+            return FUJITSU_SWING_TO_HA[self._ac.get_vertical_direction()]
+
+    @property
+    def swing_modes(self) -> list[str] | None:
+        """Return swing modes if supported."""
+        return SWING_MODES if self.swing_mode is not None else None
 
     async def async_update(self) -> None:
         """Retrieve latest state."""
@@ -213,3 +218,13 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         else:
             await self._ac.set_vertical_direction(HA_SWING_TO_FUJITSU[swing_mode])
         await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+
+    @property
+    def supported_features(self) -> ClimateEntityFeature:
+        """Return the list of supported features."""
+        supported_features = (
+            ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE
+        )
+        if self.swing_mode:
+            supported_features |= ClimateEntityFeature.SWING_MODE
+        return supported_features

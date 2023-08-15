@@ -19,11 +19,16 @@ import pyairstage.airstageApi as airstage_api
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import AIRSTAGE_RETRY, DOMAIN
+from .const import (
+    AIRSTAGE_RETRY,
+    AIRSTAGE_SYNC_INTERVAL,
+    AIRSTAGE_SYNC_LOCAL_INTERVAL,
+    DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
-AIRSTAGE_SYNC_INTERVAL = 120
+
 PLATFORMS: list[Platform] = [
     Platform.CLIMATE,
     Platform.SENSOR,
@@ -99,7 +104,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             _LOGGER,
             name="Fujitsu Airstage",
             update_method=async_get,
-            update_interval=timedelta(seconds=AIRSTAGE_SYNC_INTERVAL),
+            update_interval=timedelta(seconds=AIRSTAGE_SYNC_LOCAL_INTERVAL),
         )
 
         await coordinator.async_config_entry_first_refresh()
