@@ -4,9 +4,6 @@ from typing import Any
 
 from pyairstage import constants
 
-from homeassistant.components.fujitsu_airstage.pyairstage.pyairstage.constants import (
-    ACParameter,
-)
 from .entity import AirstageAcEntity
 from .models import AirstageData
 from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
