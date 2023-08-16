@@ -5,6 +5,7 @@ import logging
 from typing import Any
 
 import voluptuous as vol
+from ipaddress import ip_address
 
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
@@ -55,8 +56,20 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> FlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
+        local_data_schema = {
+            vol.Required(CONF_DEVICE_ID, default=self.device_id): str,
+            vol.Required(CONF_IP_ADDRESS, default=self.ip_address): str,
+        }
+        cloud_data_schema = {
+            vol.Required(CONF_USERNAME, default=self.username): str,
+            vol.Required(CONF_PASSWORD, default=self.password): str,
+            vol.Optional(
+                CONF_COUNTRY,
+                default="Norway",
+            ): str,
+        }
 
-        print(user_input)
+        data_schema = cloud_data_schema  # Default data scheme
 
         if user_input is None:
             return await self.async_step_user()
@@ -65,20 +78,53 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             CONF_SELECT_POLLING in user_input
             and user_input[CONF_SELECT_POLLING] == CONF_LOCAL
         ):
-            data_schema = {
-                vol.Required(CONF_DEVICE_ID, default=self.device_id): str,
-                vol.Required(CONF_IP_ADDRESS, default=self.ip_address): str,
-            }
-
-            return self.async_show_form(
-                step_id="details", data_schema=vol.Schema(data_schema), errors=errors
-            )
+            data_schema = local_data_schema
 
         if CONF_DEVICE_ID in user_input or CONF_IP_ADDRESS in user_input:
-            return self.async_create_entry(
-                title=f"{CONF_LOCAL} - {user_input[CONF_DEVICE_ID]}",
-                data=user_input,
+            data_schema = local_data_schema
+            try:
+                ip_address(user_input[CONF_IP_ADDRESS])
+            except ValueError:
+                errors["base"] = "address/netmask is invalid"
+            except:
+                errors["base"] = "address/netmask is invalid"
+
+            user_input[CONF_DEVICE_ID] = (
+                str(user_input[CONF_DEVICE_ID]).replace(":", "").upper()
             )
+
+            if len(user_input[CONF_DEVICE_ID]) != 12:
+                errors["base"] = "invalid device id"
+
+            if not errors:
+                try:
+                    hub = airstage_api.ApiLocal(
+                        session=async_get_clientsession(self.hass),
+                        retry=AIRSTAGE_RETRY,
+                        device_id=user_input[CONF_DEVICE_ID],
+                        ip_address=user_input[CONF_IP_ADDRESS],
+                    )
+
+                    if not await hub.get_parameters(
+                        [
+                            "iu_model",
+                        ],
+                    ):
+                        raise InvalidAuth
+                except airstage_api.ApiError:
+                    errors["base"] = "cannot_connect"
+                except CannotConnect:
+                    errors["base"] = "cannot_connect"
+                except InvalidAuth:
+                    errors["base"] = "invalid_auth"
+                except Exception:  # pylint: disable=broad-except
+                    _LOGGER.exception("Unexpected exception")
+                    errors["base"] = "unknown"
+                else:
+                    return self.async_create_entry(
+                        title=f"{CONF_LOCAL} - {user_input[CONF_DEVICE_ID]}",
+                        data=user_input,
+                    )
 
         if CONF_USERNAME in user_input or CONF_PASSWORD in user_input:
             if (
@@ -114,15 +160,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         title=f"{DOMAIN} - {user_input[CONF_USERNAME]}",
                         data=user_input,
                     )
-
-        data_schema = {
-            vol.Required(CONF_USERNAME, default=self.username): str,
-            vol.Required(CONF_PASSWORD, default=self.password): str,
-            vol.Optional(
-                CONF_COUNTRY,
-                default="Norway",
-            ): str,
-        }
 
         return self.async_show_form(
             step_id="details", data_schema=vol.Schema(data_schema), errors=errors
