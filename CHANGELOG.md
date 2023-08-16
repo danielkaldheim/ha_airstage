@@ -1,3 +1,12 @@
+## [1.0.7](https://github.com/danielkaldheim/ha_airstage/compare/v1.0.6...v1.0.7) (2023-08-16)
+
+
+### Bug Fixes
+
+* **config:** added better validation and error handling on local ([0f92e5a](https://github.com/danielkaldheim/ha_airstage/commit/0f92e5ac964febc9c03afa678d8b4d84e7ec1e27))
+* **led:** added missing led option ([5f36c3a](https://github.com/danielkaldheim/ha_airstage/commit/5f36c3a6b1a48ab792509c94739b931151aba679))
+* **requirements:** bump pyairstage to 1.0.4 ([92cadc5](https://github.com/danielkaldheim/ha_airstage/commit/92cadc5a7ef6392f12d36366b3278a2946454cd6))
+
 ## [1.0.6](https://github.com/danielkaldheim/ha_airstage/compare/v1.0.5...v1.0.6) (2023-08-15)
 
 
