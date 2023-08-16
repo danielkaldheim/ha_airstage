@@ -39,6 +39,8 @@ async def async_setup_entry(
                 entities.append(AirstageEnergySaveFanSwitch(instance, ac_key))
             if data["iu_fan_spd"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
                 entities.append(AirstageQuietFanSwitch(instance, ac_key))
+            if data["iu_wifi_led"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+                entities.append(AirstageIndoorLedSwitch(instance, ac_key))
 
     async_add_entities(entities)
 
@@ -180,4 +182,38 @@ class AirstageQuietFanSwitch(AirstageAcEntity, SwitchEntity):
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn quiet fan off."""
         await self._ac.set_fan_speed(constants.FanSpeed.AUTO)
+        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+
+
+class AirstageIndoorLedSwitch(AirstageAcEntity, SwitchEntity):
+    """Representation of Airstage Energy saving fan switch."""
+
+    _attr_name = "Indoor LED"
+    _attr_device_class = SwitchDeviceClass.SWITCH
+
+    def __init__(self, instance: AirstageData, ac_key: str) -> None:
+        """Initialize an Airstage energy saving fan control."""
+        super().__init__(instance, ac_key)
+        self._attr_unique_id += "-indoor-led"
+
+    @property
+    def is_on(self) -> bool:
+        """Return the energy saving fan status."""
+        return self._ac.get_indoor_led() == constants.BooleanDescriptors.ON
+
+    @property
+    def icon(self) -> str:
+        """Return a representative icon of the timer."""
+        if self.is_on:
+            return "mdi:led-on"
+        return "mdi:led-variant-off"
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Turn energy saving fan on."""
+        await self._ac.set_indoor_led(constants.BooleanProperty.ON)
+        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Turn energy saving fan off."""
+        await self._ac.set_indoor_led(constants.BooleanProperty.OFF)
         await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
