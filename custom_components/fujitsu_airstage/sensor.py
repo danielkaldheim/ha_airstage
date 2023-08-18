@@ -1,11 +1,8 @@
 """Sensor platform for Airstage integration."""
 from __future__ import annotations
 
-import logging
 from decimal import Decimal
 from typing import Any
-
-import voluptuous as vol
 
 from pyairstage import constants
 from .entity import AirstageAcEntity

@@ -62,3 +62,11 @@ class AirstageAcEntity(AirstageEntity):
         return AirstageAC(self.ac_key, self.instance.api).refresh_parameters(
             data=self.coordinator.data[self.ac_key]
         )
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        devices = self.instance.coordinator.data
+        return {
+            str(x["name"]).replace("iu_", ""): x["value"]
+            for x in devices[self.ac_key]["parameters"]
+        }
