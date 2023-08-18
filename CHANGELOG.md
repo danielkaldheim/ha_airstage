@@ -1,3 +1,15 @@
+# [1.1.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.0.7...v1.1.0) (2023-08-18)
+
+
+### Bug Fixes
+
+* **version:** bump pyairstage version ([9668ef4](https://github.com/danielkaldheim/ha_airstage/commit/9668ef44c81a3b8a9f33896d8efccc0a926c4d81))
+
+
+### Features
+
+* **human detection:** added occupancy binary sensor for units with this functionality ([d18fc4b](https://github.com/danielkaldheim/ha_airstage/commit/d18fc4b4ec6c18a8e176da1a75a69de2ce4ecb7f))
+
 ## [1.0.7](https://github.com/danielkaldheim/ha_airstage/compare/v1.0.6...v1.0.7) (2023-08-16)
 
 
