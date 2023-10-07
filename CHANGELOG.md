@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.1...v1.1.2) (2023-10-07)
+
+
+### Bug Fixes
+
+* **docs:** update docs regarding cloud ([9812f26](https://github.com/danielkaldheim/ha_airstage/commit/9812f26d0699774a5b3ee10ec5448be2ab2d2bd2))
+
 ## [1.1.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.0...v1.1.1) (2023-10-07)
 
 
