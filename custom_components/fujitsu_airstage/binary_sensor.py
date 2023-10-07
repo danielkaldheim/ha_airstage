@@ -31,29 +31,29 @@ async def async_setup_entry(
     instance: AirstageData = hass.data[AIRSTAGE_DOMAIN][config_entry.entry_id]
 
     entities: list[BinarySensorEntity] = []
-    if devices := instance.coordinator.data:
-        for ac_key in devices:
-            data = {x["name"]: x for x in devices[ac_key]["parameters"]}
-            if data["iu_hmn_det"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
-                entities.append(AirstageEcoSwitch(instance, ac_key))
+    # if devices := instance.coordinator.data:
+    #     for ac_key in devices:
+    #         data = {x["name"]: x for x in devices[ac_key]["parameters"]}
+    #         if data["iu_hmn_det"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+    #             entities.append(AirstageEcoSwitch(instance, ac_key))
 
     if entities:
         async_add_entities(entities)
 
 
-class AirstageEcoSwitch(AirstageAcEntity, BinarySensorEntity):
-    """Representation of Airstage occupancy sensor."""
+# class AirstageEcoSwitch(AirstageAcEntity, BinarySensorEntity):
+#     """Representation of Airstage occupancy sensor."""
 
-    _attr_name = "Occupancy"
-    _attr_device_class = BinarySensorDeviceClass.OCCUPANCY
-    _attr_entity_category = EntityCategory.DIAGNOSTIC
+#     _attr_name = "Occupancy"
+#     _attr_device_class = BinarySensorDeviceClass.OCCUPANCY
+#     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
-    def __init__(self, instance: AirstageData, ac_key: str) -> None:
-        """Initialize an Airstage occupancy sensor."""
-        super().__init__(instance, ac_key)
-        self._attr_unique_id += "-occupancy"
+#     def __init__(self, instance: AirstageData, ac_key: str) -> None:
+#         """Initialize an Airstage occupancy sensor."""
+#         super().__init__(instance, ac_key)
+#         self._attr_unique_id += "-occupancy"
 
-    @property
-    def is_on(self) -> bool:
-        """Return the occupancy status."""
-        return self._ac.get_human_detection() == constants.BooleanDescriptors.ON
+#     @property
+#     def is_on(self) -> bool:
+#         """Return the occupancy status."""
+#         return self._ac.get_human_detection() == constants.BooleanDescriptors.ON
