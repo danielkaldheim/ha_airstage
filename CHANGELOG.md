@@ -1,3 +1,12 @@
+## [1.1.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.0...v1.1.1) (2023-10-07)
+
+
+### Bug Fixes
+
+* **config flow:** remove cloud, fixes [#7](https://github.com/danielkaldheim/ha_airstage/issues/7) ([339f3e3](https://github.com/danielkaldheim/ha_airstage/commit/339f3e31cf7af09b126e7f8b7ea75d68cc4a8d50))
+* **fan mode:** fix target temperature issue [#4](https://github.com/danielkaldheim/ha_airstage/issues/4) ([0a3da77](https://github.com/danielkaldheim/ha_airstage/commit/0a3da779ee324a395411157117aca85132a8f633))
+* **Occupancy:** Removed Occupancy sensory, wrong info ([45ffc35](https://github.com/danielkaldheim/ha_airstage/commit/45ffc35520afb935a2a2c500c9219a48c9fd7b97))
+
 # [1.1.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.0.7...v1.1.0) (2023-08-18)
 
 
