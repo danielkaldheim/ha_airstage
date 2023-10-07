@@ -171,28 +171,86 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the user step."""
         errors: dict[str, str] = {}
 
+        local_data_schema = {
+            vol.Required(CONF_DEVICE_ID, default=self.device_id): str,
+            vol.Required(CONF_IP_ADDRESS, default=self.ip_address): str,
+        }
+
+        data_schema = local_data_schema
+
         if user_input is not None:
-            return await self.async_step_details(user_input)
+            if CONF_DEVICE_ID in user_input or CONF_IP_ADDRESS in user_input:
+                data_schema = local_data_schema
+                try:
+                    ip_address(user_input[CONF_IP_ADDRESS])
+                except ValueError:
+                    errors["base"] = "address/netmask is invalid"
+                except:
+                    errors["base"] = "address/netmask is invalid"
+
+                user_input[CONF_DEVICE_ID] = (
+                    str(user_input[CONF_DEVICE_ID]).replace(":", "").upper()
+                )
+
+                if len(user_input[CONF_DEVICE_ID]) != 12:
+                    errors["base"] = "invalid device id"
+
+                if not errors:
+                    try:
+                        hub = airstage_api.ApiLocal(
+                            session=async_get_clientsession(self.hass),
+                            retry=AIRSTAGE_RETRY,
+                            device_id=user_input[CONF_DEVICE_ID],
+                            ip_address=user_input[CONF_IP_ADDRESS],
+                        )
+
+                        if not await hub.get_parameters(
+                            [
+                                "iu_model",
+                            ],
+                        ):
+                            raise InvalidAuth
+                    except airstage_api.ApiError:
+                        errors["base"] = "cannot_connect"
+                    except CannotConnect:
+                        errors["base"] = "cannot_connect"
+                    except InvalidAuth:
+                        errors["base"] = "invalid_auth"
+                    except Exception:  # pylint: disable=broad-except
+                        _LOGGER.exception("Unexpected exception")
+                        errors["base"] = "unknown"
+                    else:
+                        return self.async_create_entry(
+                            title=f"{CONF_LOCAL} - {user_input[CONF_DEVICE_ID]}",
+                            data=user_input,
+                        )
 
         return self.async_show_form(
-            step_id="user",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_SELECT_POLLING,
-                        default=CONF_CLOUD,
-                        description=CONF_SELECT_POLLING_DESCRIPTION,
-                    ): selector(
-                        {
-                            "select": {
-                                "options": [CONF_LOCAL, CONF_CLOUD],
-                            }
-                        }
-                    )
-                }
-            ),
-            errors=errors,
+            step_id="details", data_schema=vol.Schema(data_schema), errors=errors
         )
+
+        # if user_input is not None:
+        #     return await self.async_step_details(user_input)
+
+        # return self.async_show_form(
+        #     step_id="user",
+        #     data_schema=vol.Schema(
+        #         {
+        #             vol.Required(
+        #                 CONF_SELECT_POLLING,
+        #                 default=CONF_CLOUD,
+        #                 description=CONF_SELECT_POLLING_DESCRIPTION,
+        #             ): selector(
+        #                 {
+        #                     "select": {
+        #                         "options": [CONF_LOCAL, CONF_CLOUD],
+        #                     }
+        #                 }
+        #             )
+        #         }
+        #     ),
+        #     errors=errors,
+        # )
 
 
 class CannotConnect(HomeAssistantError):
