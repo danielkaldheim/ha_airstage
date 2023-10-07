@@ -1,7 +1,6 @@
 # Fujitsu Airstage Home Assistant component
 
 ![Version](https://img.shields.io/github/v/release/danielkaldheim/ha_airstage?style=for-the-badge)
-![Downloads](https://img.shields.io/github/downloads/danielkaldheim/ha_airstage/total?style=for-the-badge)
 ![Contributors](https://img.shields.io/github/contributors/danielkaldheim/ha_airstage?style=for-the-badge)
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
@@ -35,12 +34,10 @@ After install go to "Add integration" and search after Fujitsu Airstage.
 
 ### Control modes
 
-There are two ways to connect to your Airstage devices
+There was two ways to connect to your Airstage devices. Now there is only one, the local mode. The cloud mode is not working anymore. I will keep the code for the cloud mode in the repository, but it will not be maintained.
 
 - Local (recommended)
-- Cloud
-
-![Select mode](./docs/Screenshot-step1.png)
+- ~~Cloud~~
 
 #### Local
 

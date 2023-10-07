@@ -28,12 +28,10 @@ After install go to "Add integration" and search after Fujitsu Airstage.
 
 ### Control modes
 
-There are two ways to connect to your Airstage devices
+There was two ways to connect to your Airstage devices. Now there is only one, the local mode. The cloud mode is not working anymore. I will keep the code for the cloud mode in the repository, but it will not be maintained.
 
 - Local (recommended)
-- Cloud
-
-![Select mode](./docs/Screenshot-step1.png)
+- ~~Cloud~~
 
 #### Local
 
