@@ -139,6 +139,8 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         """Return the current target temperature."""
         if self.hvac_mode == HVACMode.FAN_ONLY:
             return self._ac.get_display_temperature()
+        if int(self._ac.get_target_temperature()) >= 6553:
+            return self._ac.get_display_temperature()
         return self._ac.get_target_temperature()
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
@@ -226,7 +228,7 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         """Return the list of supported features."""
         supported_features = ClimateEntityFeature.FAN_MODE
 
-        if self.hvac_mode != HVACMode.FAN_ONLY:
+        if self.hvac_mode != HVACMode.FAN_ONLY and int(self._ac.get_target_temperature()) < 6553:
             supported_features |= ClimateEntityFeature.TARGET_TEMPERATURE
 
         if self.swing_mode:
