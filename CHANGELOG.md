@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.2...v1.1.3) (2023-10-11)
+
+
+### Bug Fixes
+
+* **target temperature:** disable setting temperature when feature is off ([b4c19fd](https://github.com/danielkaldheim/ha_airstage/commit/b4c19fdf9e85d48347d470c7e49e15aeab50e823))
+
 ## [1.1.2](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.1...v1.1.2) (2023-10-07)
 
 
