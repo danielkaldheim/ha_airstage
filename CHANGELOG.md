@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.4...v1.1.5) (2023-10-17)
+
+
+### Bug Fixes
+
+* **feature:** add back target temperature feature ([56f6642](https://github.com/danielkaldheim/ha_airstage/commit/56f66421935adde6b5add5e3d88d9b6876d6cfb9))
+
 ## [1.1.4](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.3...v1.1.4) (2023-10-17)
 
 
