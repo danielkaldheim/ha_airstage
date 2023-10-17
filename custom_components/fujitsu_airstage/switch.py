@@ -28,6 +28,7 @@ async def async_setup_entry(
     entities: list[SwitchEntity] = []
     if devices := instance.coordinator.data:
         for ac_key in devices:
+            entities.append(AirstagePowerSwitch(instance, ac_key))
             data = {x["name"]: x for x in devices[ac_key]["parameters"]}
             if data["iu_economy"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
                 entities.append(AirstageEcoSwitch(instance, ac_key))
@@ -203,7 +204,7 @@ class AirstageIndoorLedSwitch(AirstageAcEntity, SwitchEntity):
 
     @property
     def icon(self) -> str:
-        """Return a representative icon of the timer."""
+        """Return a representative icon of the switch."""
         if self.is_on:
             return "mdi:led-on"
         return "mdi:led-variant-off"
@@ -216,4 +217,38 @@ class AirstageIndoorLedSwitch(AirstageAcEntity, SwitchEntity):
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn energy saving fan off."""
         await self._ac.set_indoor_led(constants.BooleanProperty.OFF)
+        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+
+
+class AirstagePowerSwitch(AirstageAcEntity, SwitchEntity):
+    """Representation of Airstage power switch."""
+
+    _attr_name = "Power"
+    _attr_device_class = SwitchDeviceClass.SWITCH
+
+    def __init__(self, instance: AirstageData, ac_key: str) -> None:
+        """Initialize an Airstage power control."""
+        super().__init__(instance, ac_key)
+        self._attr_unique_id += "-power"
+
+    @property
+    def is_on(self) -> bool:
+        """Return the power status."""
+        return self._ac.get_device_on_off_state() == constants.BooleanDescriptors.ON
+
+    @property
+    def icon(self) -> str:
+        """Return a representative icon of the switch."""
+        if self.is_on:
+            return "mdi:power"
+        return "mdi:power-off"
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Turn power on."""
+        await self._ac.turn_on()
+        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Turn power off."""
+        await self._ac.turn_off()
         await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
