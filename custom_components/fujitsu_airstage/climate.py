@@ -227,7 +227,7 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         supported_features = ClimateEntityFeature.FAN_MODE
 
         # if self.hvac_mode != HVACMode.FAN_ONLY and int(self._ac.get_target_temperature()) < 6553:
-        #     supported_features |= ClimateEntityFeature.TARGET_TEMPERATURE
+        supported_features |= ClimateEntityFeature.TARGET_TEMPERATURE
 
         if self.swing_mode:
             supported_features |= ClimateEntityFeature.SWING_MODE
