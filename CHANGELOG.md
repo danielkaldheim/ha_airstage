@@ -1,3 +1,10 @@
+## [1.1.6](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.5...v1.1.6) (2023-10-17)
+
+
+### Bug Fixes
+
+* **target temperature:** fix set target temperature when mode is fan only ([482b6e3](https://github.com/danielkaldheim/ha_airstage/commit/482b6e39ff84ff3bdccdb6a8f01a38252210ee9f))
+
 ## [1.1.5](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.4...v1.1.5) (2023-10-17)
 
 
