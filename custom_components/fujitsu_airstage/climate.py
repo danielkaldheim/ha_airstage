@@ -138,14 +138,15 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     def target_temperature(self) -> float | None:
         """Return the current target temperature."""
         if self.hvac_mode == HVACMode.FAN_ONLY or int(self._ac.get_target_temperature()) >= 6000:
-            return self.current_temperature()
+            return self.current_temperature
         return self._ac.get_target_temperature()
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""
 
-        await self._ac.set_target_temperature(kwargs.get(ATTR_TEMPERATURE))
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        if self.hvac_mode != HVACMode.FAN_ONLY:
+            await self._ac.set_target_temperature(kwargs.get(ATTR_TEMPERATURE))
+            await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
 
     @property
     def current_temperature(self) -> float | None:
