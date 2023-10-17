@@ -137,7 +137,10 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     @property
     def target_temperature(self) -> float | None:
         """Return the current target temperature."""
-        if self.hvac_mode == HVACMode.FAN_ONLY or int(self._ac.get_target_temperature()) >= 6000:
+        if (
+            self.hvac_mode == HVACMode.FAN_ONLY
+            or int(self._ac.get_target_temperature()) >= 6000
+        ):
             return self.current_temperature
         return self._ac.get_target_temperature()
 
