@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.3...v1.1.4) (2023-10-17)
+
+
+### Bug Fixes
+
+* **target temperature:** get last good value if value returns error ([5b8e858](https://github.com/danielkaldheim/ha_airstage/commit/5b8e858fdcd2a03b3233ad53b4dfc37130275010))
+
 ## [1.1.3](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.2...v1.1.3) (2023-10-11)
 
 
