@@ -1,3 +1,10 @@
+## [1.1.7](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.6...v1.1.7) (2023-11-02)
+
+
+### Bug Fixes
+
+* **climate:** Quickfix target temperature is none, issue [#16](https://github.com/danielkaldheim/ha_airstage/issues/16) ([fc2e313](https://github.com/danielkaldheim/ha_airstage/commit/fc2e31340a8edaa1ace6aa34f14886cb142b095e))
+
 ## [1.1.6](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.5...v1.1.6) (2023-10-17)
 
 
