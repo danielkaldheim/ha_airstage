@@ -115,8 +115,8 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     _attr_fan_modes = [FAN_QUIET, FAN_LOW, FAN_MEDIUM, FAN_HIGH]
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_target_temperature_step = 0.5
-    _attr_max_temp = 32
-    _attr_min_temp = 16
+    _attr_max_temp = 30
+    _attr_min_temp = 18
     _attr_name = None
 
     _attr_fan_modes = [FAN_QUIET, FAN_LOW, FAN_MEDIUM, FAN_HIGH, FAN_AUTO]
