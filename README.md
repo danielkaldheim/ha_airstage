@@ -53,3 +53,8 @@ WARING: while writing this code and testing against the Airstage rest api I was 
 You need your email and password used on the Airstage app. Also you need your country, my case it was Norway. Will add all your Airstage devices connected to the account.
 
 ![Cloud mode](./docs/Screenshot-step2-cloud.png)
+
+
+## DEVELOPER STATUS
+
+Please read issue https://github.com/danielkaldheim/ha_airstage/issues/30 for more info about this integration status and issues.
