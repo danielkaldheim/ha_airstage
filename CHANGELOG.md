@@ -1,3 +1,10 @@
+## [1.1.8](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.7...v1.1.8) (2024-03-20)
+
+
+### Bug Fixes
+
+* **api:** bump api version ([46aa13d](https://github.com/danielkaldheim/ha_airstage/commit/46aa13de328f88d51c00814cae4e56a020ad06c1))
+
 ## [1.1.7](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.6...v1.1.7) (2023-11-02)
 
 
