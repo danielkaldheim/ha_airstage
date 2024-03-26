@@ -16,6 +16,7 @@ from homeassistant.components.climate import (
     ClimateEntity,
     ClimateEntityFeature,
     HVACMode,
+    PRESET_NONE,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
@@ -30,6 +31,7 @@ from .const import (
     VERTICAL_LOW,
     VERTICAL_LOWEST,
     VERTICAL_SWING,
+    MINIMUM_HEAT,
 )
 
 HA_STATE_TO_FUJITSU = {
@@ -190,6 +192,22 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         """Return swing modes if supported."""
         return SWING_MODES if self.swing_mode is not None else None
 
+    @property
+    def preset_mode(self) -> str | None:
+        """Return the current preset mode."""
+
+        if self._ac.get_minimum_heat() != None:
+            if self._ac.get_minimum_heat() == constants.BooleanDescriptors.ON:
+                return MINIMUM_HEAT
+            else:
+                return PRESET_NONE
+        return None
+    
+    @property
+    def preset_modes(self) -> list[str] | None:
+        """Return preset modes if supported."""
+        return [PRESET_NONE, MINIMUM_HEAT] if self._ac.get_minimum_heat() is not None else None
+
     async def async_update(self) -> None:
         """Retrieve latest state."""
         await self.async_update_ac()
@@ -227,6 +245,13 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
             await self._ac.set_vertical_direction(HA_SWING_TO_FUJITSU[swing_mode])
         await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
 
+    async def async_set_preset_mode(self, preset_mode: str) -> None:
+        if preset_mode == MINIMUM_HEAT:
+            await self._ac.set_minimum_heat(constants.BooleanProperty.ON)
+        else:
+            await self._ac.set_minimum_heat(constants.BooleanProperty.OFF)
+        await self.instance.coordinator.async_refresh()
+
     @property
     def supported_features(self) -> ClimateEntityFeature:
         """Return the list of supported features."""
@@ -234,6 +259,9 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
 
         # if self.hvac_mode != HVACMode.FAN_ONLY and int(self._ac.get_target_temperature()) < 6553:
         supported_features |= ClimateEntityFeature.TARGET_TEMPERATURE
+
+        if self.preset_mode:
+            supported_features |= ClimateEntityFeature.PRESET_MODE
 
         if self.swing_mode:
             supported_features |= ClimateEntityFeature.SWING_MODE

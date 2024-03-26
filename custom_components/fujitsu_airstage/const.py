@@ -18,6 +18,9 @@ VERTICAL_LOWEST = "Lowest"
 FAN_QUIET = "Quiet"
 
 
+MINIMUM_HEAT = "Minimum Heat"
+
+
 CONF_LOCAL = "local"
 CONF_CLOUD = "cloud"
 CONF_SELECT_POLLING = "select_polling"
