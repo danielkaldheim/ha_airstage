@@ -112,6 +112,8 @@ async def async_setup_entry(
 class AirstageAC(AirstageAcEntity, ClimateEntity):
     """Airstage unit."""
 
+    _enable_turn_on_off_backwards_compatibility = False
+
     _attr_fan_modes = [FAN_QUIET, FAN_LOW, FAN_MEDIUM, FAN_HIGH]
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_target_temperature_step = 0.5
@@ -233,7 +235,9 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         supported_features = ClimateEntityFeature.FAN_MODE
 
         # if self.hvac_mode != HVACMode.FAN_ONLY and int(self._ac.get_target_temperature()) < 6553:
-        supported_features |= ClimateEntityFeature.TARGET_TEMPERATURE
+        supported_features |= ClimateEntityFeature.TARGET_TEMPERATURE \
+            | ClimateEntityFeature.TURN_OFF \
+            | ClimateEntityFeature.TURN_ON
 
         if self.swing_mode:
             supported_features |= ClimateEntityFeature.SWING_MODE
