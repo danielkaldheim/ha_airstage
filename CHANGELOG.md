@@ -1,3 +1,10 @@
+## [1.1.9](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.8...v1.1.9) (2024-08-24)
+
+
+### Bug Fixes
+
+* **climate:** fixes climate entity min heat and on/off ([1a34777](https://github.com/danielkaldheim/ha_airstage/commit/1a34777066d2e741ae5be8a9ff33b7a309b5cfba))
+
 ## [1.1.8](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.7...v1.1.8) (2024-03-20)
 
 
