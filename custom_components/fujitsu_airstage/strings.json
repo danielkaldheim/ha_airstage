@@ -1,4 +1,11 @@
 {
+  "options": {
+    "step": {
+      "init": {
+          "conf_turn_on_before_set_temp": "[%key:common::config_flow::data::conf_turn_on_before_set_temp]"
+      }
+    }
+  },
   "config": {
     "step": {
       "details": {
