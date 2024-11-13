@@ -87,7 +87,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
-    ) -> ConfigFlow:
+    ) -> OptionsFlow:
         """Get the Frigate Options flow."""
         return OptionsFlow(config_entry)
 
