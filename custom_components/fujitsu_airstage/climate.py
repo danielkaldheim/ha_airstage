@@ -152,6 +152,8 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""
+        if self.hvac_mode == HVACMode.OFF:
+            await self.async_turn_on()
 
         if self.hvac_mode != HVACMode.FAN_ONLY:
             await self._ac.set_target_temperature(kwargs.get(ATTR_TEMPERATURE))
