@@ -26,5 +26,6 @@ jobs:
           category: "integration"
       - uses: KTibow/ha-blueprint@stable
         name: CI
+        if: github.event_name != 'pull_request'
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
