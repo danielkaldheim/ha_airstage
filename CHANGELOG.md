@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.2.0...v1.2.1) (2024-11-18)
+
+
+### Bug Fixes
+
+* **docs:** bringing back strings.json in proper format ([5d3f8c7](https://github.com/danielkaldheim/ha_airstage/commit/5d3f8c72ad1ba63ed15bcfecb3e24b96c4b3bdc5))
+
 # [1.2.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.9...v1.2.0) (2024-11-18)
 
 
