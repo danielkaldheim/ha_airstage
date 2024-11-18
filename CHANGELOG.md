@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.9...v1.2.0) (2024-11-18)
+
+
+### Features
+
+* **config:** added ability to turn on unit when setting temp while unit is off ([#36](https://github.com/danielkaldheim/ha_airstage/issues/36)). Thanks uvera! ([3fb9184](https://github.com/danielkaldheim/ha_airstage/commit/3fb91846805390a26e39d08108f9f26f98f842fe))
+
 ## [1.1.9](https://github.com/danielkaldheim/ha_airstage/compare/v1.1.8...v1.1.9) (2024-08-24)
 
 
