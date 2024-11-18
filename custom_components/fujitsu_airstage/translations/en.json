@@ -3,7 +3,7 @@
         "step": {
             "init": {
                 "data": {
-                    "conf_turn_on_before_set_temp": "Turn on AC before setting temperature"
+                    "conf_turn_on_before_set_temp": "Turn on device before setting temperature"
                 }
             }
         }
