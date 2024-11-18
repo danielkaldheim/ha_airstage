@@ -9,6 +9,7 @@ from ipaddress import ip_address
 
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
+from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -33,10 +34,40 @@ from .const import (
     CONF_SELECT_POLLING,
     CONF_SELECT_POLLING_DESCRIPTION,
     DOMAIN,
+    CONF_TURN_ON_BEFORE_SET_TEMP,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
+class OptionsFlow(config_entries.OptionsFlow):
+    """Handle a options flow for Airstage Fujitsu."""
+
+    def __init__(self, config_entry: config_entries.ConfigEntry):
+        """Initialize the options flow."""
+        self._config_entry = config_entry
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Manage the options."""
+        if user_input is not None:
+            return self.async_create_entry(data=user_input)
+
+        options_schema = {
+            vol.Optional(
+                CONF_TURN_ON_BEFORE_SET_TEMP,
+                default=self._config_entry.options.get(
+                    CONF_TURN_ON_BEFORE_SET_TEMP,
+                    False
+                ),
+            ): bool,
+        }
+
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(options_schema),
+        )
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Airstage Fujitsu."""
@@ -50,6 +81,15 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.country = None
         self.device_id = None
         self.ip_address = None
+        self.turn_on_before_set_temp = False
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> OptionsFlow:
+        """Get the Frigate Options flow."""
+        return OptionsFlow(config_entry)
 
     async def async_step_details(
         self, user_input: dict[str, Any] | None = None

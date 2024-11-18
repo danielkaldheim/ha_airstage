@@ -32,6 +32,7 @@ from .const import (
     VERTICAL_LOWEST,
     VERTICAL_SWING,
     MINIMUM_HEAT,
+    CONF_TURN_ON_BEFORE_SET_TEMP,
 )
 
 HA_STATE_TO_FUJITSU = {
@@ -101,14 +102,20 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
+    config_entry.async_on_unload(config_entry.add_update_listener(update_listener))
+
     instance: AirstageData = hass.data[AIRSTAGE_DOMAIN][config_entry.entry_id]
 
     entities: list[ClimateEntity] = []
     if devices := instance.coordinator.data:
         for ac_key in devices:
-            entities.append(AirstageAC(instance, ac_key))
+            entities.append(AirstageAC(instance, ac_key, config_entry))
 
     async_add_entities(entities)
+
+async def update_listener(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+    """Update listener."""
+    await hass.config_entries.async_reload(config_entry.entry_id)
 
 
 class AirstageAC(AirstageAcEntity, ClimateEntity):
@@ -122,6 +129,7 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     _attr_max_temp = 32
     _attr_min_temp = 16
     _attr_name = None
+    _turn_on_before_set_temp = False
 
     _attr_fan_modes = [FAN_QUIET, FAN_LOW, FAN_MEDIUM, FAN_HIGH, FAN_AUTO]
 
@@ -134,9 +142,10 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         HVACMode.AUTO,
     ]
 
-    def __init__(self, instance: AirstageData, ac_key: str) -> None:
+    def __init__(self, instance: AirstageData, ac_key: str, config_entry: ConfigEntry) -> None:
         """Initialize an AdvantageAir AC unit."""
         super().__init__(instance, ac_key)
+        self._turn_on_before_set_temp = config_entry.options.get(CONF_TURN_ON_BEFORE_SET_TEMP, False)
 
     @property
     def target_temperature(self) -> float | None:
@@ -152,6 +161,8 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""
+        if self._turn_on_before_set_temp and self.hvac_mode == HVACMode.OFF:
+            await self.async_turn_on()
 
         if self.hvac_mode != HVACMode.FAN_ONLY:
             await self._ac.set_target_temperature(kwargs.get(ATTR_TEMPERATURE))
