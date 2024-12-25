@@ -10,6 +10,7 @@ import pyairstage.airstageApi as airstage_api
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.components.dhcp import DhcpServiceInfo
 from homeassistant.const import (
     CONF_COUNTRY,
     CONF_DEVICE_ID,
@@ -18,7 +19,6 @@ from homeassistant.const import (
     CONF_USERNAME,
 )
 from homeassistant.core import callback
-from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
@@ -137,6 +137,65 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> OptionsFlow:
         """Get the Airstage Fujitsu Options flow."""
         return OptionsFlow(config_entry)
+
+    async def async_step_dhcp(
+        self,
+        discovery_info: DhcpServiceInfo,
+    ) -> config_entries.ConfigFlowResult:
+        """Handle DHCP discovery flow."""
+        _LOGGER.debug("DHCP discovery: %s", discovery_info)
+        ip = discovery_info.ip
+        mac = discovery_info.macaddress
+
+        for entry in self._async_current_entries():
+            if entry.data.get(CONF_DEVICE_ID) == mac.replace(":", "").upper():
+                # Device is already configured, check if IP changed
+                old_ip = entry.data.get(CONF_IP_ADDRESS)
+
+                if old_ip != ip:
+                    _LOGGER.info(
+                        "Updating IP for device %s from %s to %s",
+                        mac,
+                        old_ip,
+                        ip,
+                    )
+                    new_data = {
+                        **entry.data,
+                        CONF_IP_ADDRESS: ip,
+                    }
+                    self.hass.config_entries.async_update_entry(
+                        entry,
+                        data=new_data,
+                    )
+                return self.async_abort(reason="already_configured")
+
+        # If we get here, the device is not yet configured. Proceed with normal flow
+        device_id = mac.replace(":", "").upper()
+        user_data = {
+            CONF_DEVICE_ID: device_id,
+            CONF_IP_ADDRESS: ip,
+        }
+
+        # Test to see if we can connect to the device
+        try:
+            hub = airstage_api.ApiLocal(
+                session=async_get_clientsession(self.hass),
+                retry=AIRSTAGE_RETRY,
+                device_id=user_data[CONF_DEVICE_ID],
+                ip_address=user_data[CONF_IP_ADDRESS],
+            )
+            if not await hub.get_parameters(["iu_model"]):
+                return self.async_abort(reason="not_a_fujitsu_airstage")
+        except Exception:  # pylint: disable=broad-except
+            _LOGGER.exception("Unexpected exception")
+            return self.async_abort(reason="not_a_fujitsu_airstage")
+
+        # If successful, create entry
+        return self.async_create_entry(
+            title=f"Local device {device_id}",
+            data=user_data,
+        )
+
 
     async def async_step_details(
         self, user_input: dict[str, Any] | None = None
