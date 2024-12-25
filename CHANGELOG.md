@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/danielkaldheim/ha_airstage/compare/v1.2.1...v1.2.2) (2024-12-25)
+
+
+### Bug Fixes
+
+* **ci:** disable ha-blueprint because requested access to the resource is denied ([1729340](https://github.com/danielkaldheim/ha_airstage/commit/1729340a6384d14f11183dfad4253a4817716ba1))
+
 ## [1.2.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.2.0...v1.2.1) (2024-11-18)
 
 
