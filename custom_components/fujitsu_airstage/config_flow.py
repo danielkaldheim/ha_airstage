@@ -1,73 +1,120 @@
 """Config flow for Airstage Fujitsu integration."""
+
 from __future__ import annotations
 
+from ipaddress import ip_address
 import logging
 from typing import Any
 
+import pyairstage.airstageApi as airstage_api
 import voluptuous as vol
-from ipaddress import ip_address
 
 from homeassistant import config_entries
-from homeassistant.core import HomeAssistant
+from homeassistant.const import (
+    CONF_COUNTRY,
+    CONF_DEVICE_ID,
+    CONF_IP_ADDRESS,
+    CONF_PASSWORD,
+    CONF_USERNAME,
+)
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from homeassistant.const import (
-    CONF_COUNTRY,
-    CONF_DEVICE_ID,
-    CONF_IP_ADDRESS,
-    CONF_USERNAME,
-    CONF_PASSWORD,
-)
-
-from homeassistant.helpers.selector import selector
-
-
-import pyairstage.airstageApi as airstage_api
-
 from .const import (
     AIRSTAGE_RETRY,
-    CONF_CLOUD,
     CONF_LOCAL,
     CONF_SELECT_POLLING,
-    CONF_SELECT_POLLING_DESCRIPTION,
-    DOMAIN,
     CONF_TURN_ON_BEFORE_SET_TEMP,
+    DOMAIN,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
-class OptionsFlow(config_entries.OptionsFlow):
-    """Handle a options flow for Airstage Fujitsu."""
 
-    def __init__(self, config_entry: config_entries.ConfigEntry):
+class OptionsFlow(config_entries.OptionsFlow):
+    """Handle an options flow for Airstage Fujitsu."""
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize the options flow."""
         self._config_entry = config_entry
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> config_entries.ConfigFlowResult:
         """Manage the options."""
+        errors: dict[str, str] = {}
+
+        # We read from config_entry.data because that's where we stored IP
+        current_ip = self._config_entry.data.get(CONF_IP_ADDRESS, "")
+        current_turn_on_before_set_temp = self._config_entry.options.get(
+            CONF_TURN_ON_BEFORE_SET_TEMP, False
+        )
+
         if user_input is not None:
-            return self.async_create_entry(data=user_input)
+            # Validate IP if user changed it
+            new_ip = user_input.get(CONF_IP_ADDRESS, current_ip)
 
-        options_schema = {
-            vol.Optional(
-                CONF_TURN_ON_BEFORE_SET_TEMP,
-                default=self._config_entry.options.get(
-                    CONF_TURN_ON_BEFORE_SET_TEMP,
-                    False
+            if new_ip:
+                try:
+                    ip_address(new_ip)
+                except ValueError:
+                    errors["base"] = "invalid_ip"
+                else:
+                    # If IP is good, update config_entry.data
+                    new_data = {
+                        **self._config_entry.data,
+                        CONF_IP_ADDRESS: new_ip,
+                        CONF_DEVICE_ID: self._config_entry.data.get(CONF_DEVICE_ID, ""),
+                    }
+
+                    # Update config_entry.data
+                    self.hass.config_entries.async_update_entry(
+                        self._config_entry,
+                        data=new_data,
+                        options={
+                            **self._config_entry.options,
+                            CONF_TURN_ON_BEFORE_SET_TEMP: user_input.get(
+                                CONF_TURN_ON_BEFORE_SET_TEMP,
+                                current_turn_on_before_set_temp,
+                            ),
+                        },
+                    )
+                    return self.async_create_entry(data={})
+
+            # If new_ip was not provided or invalid, show error
+            # But also handle toggles in options
+            return self.async_show_form(
+                step_id="init",
+                data_schema=self._build_schema(
+                    current_ip, current_turn_on_before_set_temp
                 ),
-            ): bool,
-        }
-
+                errors=errors,
+            )
 
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema(options_schema),
+            data_schema=self._build_schema(current_ip, current_turn_on_before_set_temp),
+            errors=errors,
         )
+
+    def _build_schema(self, default_ip: str, default_turn_on_before_set_temp: bool):
+        """Build the schema for the OptionsFlow form."""
+        return vol.Schema(
+            {
+                vol.Optional(
+                    CONF_IP_ADDRESS,
+                    description={"suggested_value": default_ip},
+                    default=default_ip,
+                ): str,
+                vol.Optional(
+                    CONF_TURN_ON_BEFORE_SET_TEMP,
+                    default=default_turn_on_before_set_temp,
+                ): bool,
+            }
+        )
+
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Airstage Fujitsu."""
@@ -88,13 +135,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
     ) -> OptionsFlow:
-        """Get the Frigate Options flow."""
+        """Get the Airstage Fujitsu Options flow."""
         return OptionsFlow(config_entry)
 
     async def async_step_details(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
-        """Handle the initial step."""
+    ) -> config_entries.ConfigFlowResult:
+        """Handle the details step (local or cloud)."""
         errors: dict[str, str] = {}
         local_data_schema = {
             vol.Required(CONF_DEVICE_ID, default=self.device_id): str,
@@ -103,30 +150,29 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         cloud_data_schema = {
             vol.Required(CONF_USERNAME, default=self.username): str,
             vol.Required(CONF_PASSWORD, default=self.password): str,
-            vol.Optional(
-                CONF_COUNTRY,
-                default="Norway",
-            ): str,
+            vol.Optional(CONF_COUNTRY, default="Norway"): str,
         }
 
-        data_schema = cloud_data_schema  # Default data scheme
+        data_schema = cloud_data_schema  # Default data schema
 
         if user_input is None:
             return await self.async_step_user()
 
+        # Check if user selected local in a prior step
         if (
             CONF_SELECT_POLLING in user_input
             and user_input[CONF_SELECT_POLLING] == CONF_LOCAL
         ):
             data_schema = local_data_schema
 
+        # LOCAL route
         if CONF_DEVICE_ID in user_input or CONF_IP_ADDRESS in user_input:
             data_schema = local_data_schema
             try:
                 ip_address(user_input[CONF_IP_ADDRESS])
             except ValueError:
                 errors["base"] = "address/netmask is invalid"
-            except:
+            except Exception:  # noqa: BLE001
                 errors["base"] = "address/netmask is invalid"
 
             user_input[CONF_DEVICE_ID] = (
@@ -137,6 +183,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "invalid device id"
 
             if not errors:
+                # Attempt connection
                 try:
                     hub = airstage_api.ApiLocal(
                         session=async_get_clientsession(self.hass),
@@ -145,11 +192,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         ip_address=user_input[CONF_IP_ADDRESS],
                     )
 
-                    if not await hub.get_parameters(
-                        [
-                            "iu_model",
-                        ],
-                    ):
+                    if not await hub.get_parameters(["iu_model"]):
                         raise InvalidAuth
                 except airstage_api.ApiError:
                     errors["base"] = "cannot_connect"
@@ -161,11 +204,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     _LOGGER.exception("Unexpected exception")
                     errors["base"] = "unknown"
                 else:
+                    # If successful, create entry
                     return self.async_create_entry(
                         title=f"{CONF_LOCAL} - {user_input[CONF_DEVICE_ID]}",
                         data=user_input,
                     )
 
+        # CLOUD route
         if CONF_USERNAME in user_input or CONF_PASSWORD in user_input:
             if (
                 not user_input[CONF_USERNAME]
@@ -174,6 +219,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ):
                 errors["base"] = "missing_field"
             else:
+                # Attempt cloud connection
                 try:
                     hub = airstage_api.ApiCloud(
                         "eu",
@@ -196,6 +242,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     _LOGGER.exception("Unexpected exception")
                     errors["base"] = "unknown"
                 else:
+                    # If successful, create entry
                     return self.async_create_entry(
                         title=f"{DOMAIN} - {user_input[CONF_USERNAME]}",
                         data=user_input,
@@ -207,7 +254,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> config_entries.ConfigFlowResult:
         """Handle the user step."""
         errors: dict[str, str] = {}
 
@@ -225,7 +272,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     ip_address(user_input[CONF_IP_ADDRESS])
                 except ValueError:
                     errors["base"] = "address/netmask is invalid"
-                except:
+                except Exception:
                     errors["base"] = "address/netmask is invalid"
 
                 user_input[CONF_DEVICE_ID] = (
@@ -236,6 +283,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     errors["base"] = "invalid device id"
 
                 if not errors:
+                    # Attempt to connect
                     try:
                         hub = airstage_api.ApiLocal(
                             session=async_get_clientsession(self.hass),
@@ -244,11 +292,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             ip_address=user_input[CONF_IP_ADDRESS],
                         )
 
-                        if not await hub.get_parameters(
-                            [
-                                "iu_model",
-                            ],
-                        ):
+                        if not await hub.get_parameters(["iu_model"]):
                             raise InvalidAuth
                     except airstage_api.ApiError:
                         errors["base"] = "cannot_connect"
@@ -268,29 +312,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="details", data_schema=vol.Schema(data_schema), errors=errors
         )
-
-        # if user_input is not None:
-        #     return await self.async_step_details(user_input)
-
-        # return self.async_show_form(
-        #     step_id="user",
-        #     data_schema=vol.Schema(
-        #         {
-        #             vol.Required(
-        #                 CONF_SELECT_POLLING,
-        #                 default=CONF_CLOUD,
-        #                 description=CONF_SELECT_POLLING_DESCRIPTION,
-        #             ): selector(
-        #                 {
-        #                     "select": {
-        #                         "options": [CONF_LOCAL, CONF_CLOUD],
-        #                     }
-        #                 }
-        #             )
-        #         }
-        #     ),
-        #     errors=errors,
-        # )
 
 
 class CannotConnect(HomeAssistantError):
