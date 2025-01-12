@@ -1,31 +1,41 @@
 {
-    "branches": [
-        {
-            "name": "main"
-        },
-        {
-            "name": "next",
-            "channel": "next"
-        }
+  "branches": [
+    {
+      "name": "main"
+    },
+    {
+      "name": "next",
+      "channel": "next"
+    }
+  ],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md"
+      }
     ],
-    "plugins": [
-        "@semantic-release/commit-analyzer",
-        "@semantic-release/release-notes-generator",
-        [
-            "@semantic-release/changelog",
-            {
-                "changelogFile": "CHANGELOG.md"
-            }
+    [
+      "semantic-release-plugin-update-version-in-files",
+      {
+        "files": [
+          "custom_components/fujitsu_airstage/manifest.json"
         ],
-        "@semantic-release/github",
-        [
-            "@semantic-release/git",
-            {
-                "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
-                "assets": [
-                    "CHANGELOG.md"
-                ]
-            }
+        "placeholder": "0.0.0-development"
+      }
+    ],
+    "@semantic-release/github",
+    [
+      "@semantic-release/git",
+      {
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
+        "assets": [
+          "CHANGELOG.md",
+          "custom_components/fujitsu_airstage/manifest.json"
         ]
+      }
     ]
+  ]
 }
