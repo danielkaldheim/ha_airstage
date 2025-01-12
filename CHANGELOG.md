@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/danielkaldheim/ha_airstage/compare/v1.2.2...v1.2.3) (2025-01-12)
+
+
+### Bug Fixes
+
+* **climate:** max temp is 30, not 32 ([b0684df](https://github.com/danielkaldheim/ha_airstage/commit/b0684df8c24d3c69b47f43f8f30f27617e8f3138))
+
 ## [1.2.2](https://github.com/danielkaldheim/ha_airstage/compare/v1.2.1...v1.2.2) (2024-12-25)
 
 
