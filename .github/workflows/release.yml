@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: "lts/*"
       - name: Install semantic-release
-        run: npm install -g semantic-release @semantic-release/github @semantic-release/commit-analyzer @semantic-release/git @semantic-release/release-notes-generator @semantic-release/changelog semantic-release-plugin-update-version-in-files
+        run: npm install -g semantic-release @semantic-release/github @semantic-release/commit-analyzer @semantic-release/git @semantic-release/release-notes-generator @semantic-release/changelog @droidsolutions-oss/semantic-release-update-file
       - name: Release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
