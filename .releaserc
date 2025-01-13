@@ -18,15 +18,12 @@
       }
     ],
     [
-      "@droidsolutions-oss/semantic-release-update-file",
+      "semantic-release-plugin-update-version-in-files",
       {
         "files": [
-          {
-            "path": ["custom_components/fujitsu_airstage/manifest.json"],
-            "type": "json",
-            "replacements": [{ "key": "version", "value": "${nextRelease.version}" }]
-          }
-        ]
+          "custom_components/fujitsu_airstage/manifest.json"
+        ],
+        "placeholder": "0.0.0-development"
       }
     ],
     "@semantic-release/github",
