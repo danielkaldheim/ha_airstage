@@ -1,3 +1,10 @@
+## [1.2.4](https://github.com/danielkaldheim/ha_airstage/compare/v1.2.3...v1.2.4) (2025-01-13)
+
+
+### Reverts
+
+* Revert "Trying a different plugin for updating manifest.json" ([c691128](https://github.com/danielkaldheim/ha_airstage/commit/c691128392970f21e5d64a06e4bfe03693a3ac45))
+
 ## [1.2.3](https://github.com/danielkaldheim/ha_airstage/compare/v1.2.2...v1.2.3) (2025-01-12)
 
 
