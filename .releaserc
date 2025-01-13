@@ -18,12 +18,9 @@
       }
     ],
     [
-      "semantic-release-plugin-update-version-in-files",
+      "@semantic-release/exec",
       {
-        "files": [
-          "custom_components/fujitsu_airstage/manifest.json"
-        ],
-        "placeholder": "0.0.0-development"
+        "prepareCmd": "npx node-jq '.version = \"nextRelease.version\"' custom_components/fujitsu_airstage/manifest.json"
       }
     ],
     "@semantic-release/github",
