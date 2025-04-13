@@ -5,6 +5,8 @@ import logging
 from typing import Any
 
 from pyairstage import constants
+from pyairstage.constants import ACParameter
+
 from .entity import AirstageAcEntity
 from .models import AirstageData
 
@@ -17,6 +19,7 @@ from homeassistant.components.climate import (
     ClimateEntityFeature,
     HVACMode,
     PRESET_NONE,
+    ATTR_HVAC_MODE,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
@@ -159,6 +162,13 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         """Set new target temperature."""
         if self._turn_on_before_set_temp and self.hvac_mode == HVACMode.OFF:
             await self.async_turn_on()
+
+        new_hvac_mode = kwargs.get(ATTR_HVAC_MODE)
+
+        if new_hvac_mode is not None and new_hvac_mode != self.hvac_mode:
+            # TODO: come up with multi-set option through pyairstage
+            await self._ac.set_operation_mode(HA_STATE_TO_FUJITSU[new_hvac_mode])
+            await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
 
         if self.hvac_mode != HVACMode.FAN_ONLY:
             await self._ac.set_target_temperature(kwargs.get(ATTR_TEMPERATURE))

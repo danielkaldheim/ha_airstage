@@ -9,8 +9,11 @@
   "documentation": "https://github.com/danielkaldheim/ha_airstage",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/danielkaldheim/ha_airstage/issues",
+  "loggers": [
+    "pyairstage"
+  ],
   "requirements": [
     "pyairstage>=2,<3"
   ],
-  "version": "1.3.2"
+  "version": "1.3.3"
 }
