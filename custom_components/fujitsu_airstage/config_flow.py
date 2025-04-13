@@ -10,7 +10,7 @@ import pyairstage.airstageApi as airstage_api
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.components.dhcp import DhcpServiceInfo
+from homeassistant.helpers.service_info.dhcp import DhcpServiceInfo
 from homeassistant.const import (
     CONF_COUNTRY,
     CONF_DEVICE_ID,
