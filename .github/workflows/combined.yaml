@@ -1,9 +1,13 @@
-name: "Validation And Formatting"
+name: Commit Workflow
 on:
   push:
   pull_request:
   schedule:
     - cron: "0 0 * * *"
+
+permissions:
+  contents: read # for checkout
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -29,3 +33,41 @@ jobs:
       #   if: github.event_name != 'pull_request'
       #   with:
       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  hacs:
+    name: HACS Validation
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: HACS Validation
+        uses: "hacs/action@main"
+        with:
+          category: "integration"
+
+  validate:
+    name: hassfest Validation
+    runs-on: "ubuntu-latest"
+    steps:
+        - uses: "actions/checkout@v4"
+        - uses: "home-assistant/actions/hassfest@master"
+  release:
+    needs: [ci, hacs, validate]
+    permissions:
+      contents: write # to be able to publish a GitHub release
+      issues: write # to be able to comment on released issues
+      pull-requests: write # to be able to comment on released pull requests
+      id-token: write # to enable use of OIDC for npm provenance
+    name: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+      - name: Install semantic-release
+        run: npm install -g semantic-release @semantic-release/github @semantic-release/commit-analyzer @semantic-release/git @semantic-release/release-notes-generator @semantic-release/changelog @semantic-release/exec node-jq
+      - name: Release
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: npx semantic-release
