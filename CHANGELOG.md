@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.2.4...v1.3.0) (2025-04-13)
+
+
+### Features
+
+* **swing:** Leveraging reworking pyairstage to allow swing positions for 4 or 6 position devices ([f750273](https://github.com/danielkaldheim/ha_airstage/commit/f7502734ef20765124ad4a827b5d3f2b67409403))
+
 ## [1.2.4](https://github.com/danielkaldheim/ha_airstage/compare/v1.2.3...v1.2.4) (2025-01-13)
 
 
