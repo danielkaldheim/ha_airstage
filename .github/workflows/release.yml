@@ -1,9 +1,12 @@
 name: Semantic Release
 on:
-  push:
-    branches:
-      - main
-      - next
+  workflow_run:
+    workflows:
+      - "Validation And Formatting"
+      - "HACS Validation"
+      - "Hassfest Validation"
+    types:
+      - completed
 
 permissions:
   contents: read # for checkout
@@ -19,9 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
       - name: Install semantic-release
