@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.3.0...v1.3.1) (2025-04-13)
+
+
+### Bug Fixes
+
+* **dhcp:** Using updated DhcpServiceInfo before 2026 deadline ([9bb641c](https://github.com/danielkaldheim/ha_airstage/commit/9bb641c645231ffcbfe7e5c5b19622f514258d67))
+
 # [1.3.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.2.4...v1.3.0) (2025-04-13)
 
 
