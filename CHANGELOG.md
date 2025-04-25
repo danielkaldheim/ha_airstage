@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/danielkaldheim/ha_airstage/compare/v1.3.1...v1.3.2) (2025-04-25)
+
+
+### Bug Fixes
+
+* **ci:** bump version ([3cb56cb](https://github.com/danielkaldheim/ha_airstage/commit/3cb56cbfd056ca038f2db063ff4d3ac3788ecde0))
+
 ## [1.3.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.3.0...v1.3.1) (2025-04-13)
 
 
