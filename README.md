@@ -10,10 +10,6 @@ Connects your Fujitsu Airstage air conditioner to Home Assistant.
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/danielkaldheim)
 
-## DEVELOPER STATUS
-
-Please read issue https://github.com/danielkaldheim/ha_airstage/issues/30 for more info about this integration status and issues.
-
 ## Installation
 
 ### HACS Installation
