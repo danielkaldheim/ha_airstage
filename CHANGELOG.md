@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/danielkaldheim/ha_airstage/compare/v1.3.2...v1.3.3) (2025-05-02)
+
+
+### Bug Fixes
+
+* **set_temperature:** [#12](https://github.com/danielkaldheim/ha_airstage/issues/12) support hvac_mode with set_temperature ([540294a](https://github.com/danielkaldheim/ha_airstage/commit/540294abbe40fb133e079e560b2d1ab812ef3d74))
+
 ## [1.3.2](https://github.com/danielkaldheim/ha_airstage/compare/v1.3.1...v1.3.2) (2025-04-25)
 
 
