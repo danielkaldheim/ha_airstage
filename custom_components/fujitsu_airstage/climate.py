@@ -4,12 +4,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from pyairstage import constants
-from pyairstage.constants import ACParameter
-
-from .entity import AirstageAcEntity
-from .models import AirstageData
-
 from homeassistant.components.climate import (
     FAN_AUTO,
     FAN_HIGH,
@@ -26,6 +20,7 @@ from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from pyairstage import constants
 from .const import (
     DOMAIN as AIRSTAGE_DOMAIN,
     FAN_QUIET,
@@ -33,6 +28,8 @@ from .const import (
     MINIMUM_HEAT,
     CONF_TURN_ON_BEFORE_SET_TEMP,
 )
+from .entity import AirstageAcEntity
+from .models import AirstageData
 
 HA_STATE_TO_FUJITSU = {
     HVACMode.FAN_ONLY: constants.OperationMode.FAN,
@@ -125,8 +122,6 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
 
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_target_temperature_step = 0.5
-    _attr_max_temp = 30
-    _attr_min_temp = 16
     _attr_name = None
     _turn_on_before_set_temp = False
 
@@ -157,6 +152,16 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         ):
             return self.current_temperature
         return target_temp
+
+    @property
+    def min_temp(self) -> float | None:
+        """Return the minimum temperature for the current mode."""
+        return self._ac.get_minimum_temperature()
+
+    @property
+    def max_temp(self) -> float | None:
+        """Return the maximum temperature for the current mode."""
+        return self._ac.get_maximum_temperature()
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""
@@ -227,7 +232,7 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
             else:
                 return PRESET_NONE
         return None
-    
+
     @property
     def preset_modes(self) -> list[str] | None:
         """Return preset modes if supported."""
@@ -280,12 +285,10 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     @property
     def supported_features(self) -> ClimateEntityFeature:
         """Return the list of supported features."""
-        supported_features = ClimateEntityFeature.FAN_MODE
+        supported_features = ClimateEntityFeature.FAN_MODE        | ClimateEntityFeature.TURN_OFF | ClimateEntityFeature.TURN_ON
 
-        # if self.hvac_mode != HVACMode.FAN_ONLY and int(self._ac.get_target_temperature()) < 6553:
-        supported_features |= ClimateEntityFeature.TARGET_TEMPERATURE \
-            | ClimateEntityFeature.TURN_OFF \
-            | ClimateEntityFeature.TURN_ON
+        # Do not vary this by mode, otherwise devices in fan_mode are not referencable in the UX
+        supported_features |= ClimateEntityFeature.TARGET_TEMPERATURE
 
         if self.preset_mode:
             supported_features |= ClimateEntityFeature.PRESET_MODE
