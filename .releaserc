@@ -20,7 +20,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "npx node-jq '.version = \"nextRelease.version\"' custom_components/fujitsu_airstage/manifest.json"
+        "prepareCmd": ""npx node-jq '.version = \"nextRelease.version\"' custom_components/fujitsu_airstage/manifest.json > custom_components/fujitsu_airstage/.manifest.json && mv custom_components/fujitsu_airstage/.manifest.json  custom_components/fujitsu_airstage/manifest.json"
       }
     ],
     "@semantic-release/github",
