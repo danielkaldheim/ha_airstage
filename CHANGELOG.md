@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.3.3...v1.4.0) (2025-05-12)
+
+
+### Features
+
+* **temperature:** Integrating HA min/max temperature properties ([73e2f72](https://github.com/danielkaldheim/ha_airstage/commit/73e2f729a1f59766f218f3352cec52b205c3a4ce))
+
 ## [1.3.3](https://github.com/danielkaldheim/ha_airstage/compare/v1.3.2...v1.3.3) (2025-05-02)
 
 
