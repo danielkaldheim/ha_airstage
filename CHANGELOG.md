@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.0...v1.4.1) (2025-05-12)
+
+
+### Bug Fixes
+
+* **manifest:** correcting automation of manifest.json ([16a7fe2](https://github.com/danielkaldheim/ha_airstage/commit/16a7fe2350fe0094a4111fcd1fcf5da49967b9b1))
+
 # [1.4.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.3.3...v1.4.0) (2025-05-12)
 
 
