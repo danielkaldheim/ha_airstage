@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.1...v1.4.2) (2025-05-14)
+
+
+### Bug Fixes
+
+* **requirements:** establishing minimum HA version ([1376669](https://github.com/danielkaldheim/ha_airstage/commit/13766696b84187cc4ec400aba3b2252b138fa2d6))
+
 ## [1.4.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.0...v1.4.1) (2025-05-12)
 
 
