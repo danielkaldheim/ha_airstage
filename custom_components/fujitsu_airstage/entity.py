@@ -1,4 +1,5 @@
 """Airstage parent entity class."""
+
 from typing import Any
 
 from homeassistant.exceptions import HomeAssistantError

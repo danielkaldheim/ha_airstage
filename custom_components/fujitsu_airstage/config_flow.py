@@ -46,8 +46,9 @@ class OptionsFlow(config_entries.OptionsFlow):
         """Manage the options."""
         errors: dict[str, str] = {}
 
-        # We read from config_entry.data because that's where we stored IP
+        # We read from config_entry.data because that's where we stored IP at initial setup
         current_ip = self._config_entry.data.get(CONF_IP_ADDRESS, "")
+        # this is purely an option though
         current_turn_on_before_set_temp = self._config_entry.options.get(
             CONF_TURN_ON_BEFORE_SET_TEMP, False
         )
@@ -67,32 +68,16 @@ class OptionsFlow(config_entries.OptionsFlow):
                         **self._config_entry.data,
                         CONF_IP_ADDRESS: new_ip,
                         CONF_DEVICE_ID: self._config_entry.data.get(CONF_DEVICE_ID, ""),
+                        CONF_TURN_ON_BEFORE_SET_TEMP: user_input.get(
+                            CONF_TURN_ON_BEFORE_SET_TEMP,
+                            current_turn_on_before_set_temp,
+                        ),
                     }
 
-                    # Update config_entry.data
-                    self.hass.config_entries.async_update_entry(
-                        self._config_entry,
-                        data=new_data,
-                        options={
-                            **self._config_entry.options,
-                            CONF_TURN_ON_BEFORE_SET_TEMP: user_input.get(
-                                CONF_TURN_ON_BEFORE_SET_TEMP,
-                                current_turn_on_before_set_temp,
-                            ),
-                        },
-                    )
-                    return self.async_create_entry(data={})
+                    return self.async_create_entry(data=new_data)
 
-            # If new_ip was not provided or invalid, show error
-            # But also handle toggles in options
-            return self.async_show_form(
-                step_id="init",
-                data_schema=self._build_schema(
-                    current_ip, current_turn_on_before_set_temp
-                ),
-                errors=errors,
-            )
-
+        # If new_ip was not provided or invalid, show error
+        # But also handle toggles in options
         return self.async_show_form(
             step_id="init",
             data_schema=self._build_schema(current_ip, current_turn_on_before_set_temp),
@@ -195,7 +180,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             title=f"Local device {device_id}",
             data=user_data,
         )
-
 
     async def async_step_details(
         self, user_input: dict[str, Any] | None = None

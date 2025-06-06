@@ -1,4 +1,5 @@
 """Binary sensor platform for Airstage integration."""
+
 import logging
 from typing import Any
 

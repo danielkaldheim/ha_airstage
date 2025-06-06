@@ -1,4 +1,5 @@
 """Climate platform for Airstage integration."""
+
 from __future__ import annotations
 
 import logging
@@ -67,11 +68,14 @@ HA_FAN_TO_FUJITSU = {
     FAN_AUTO: constants.FanSpeed.AUTO,
 }
 
+
 def ha_swing_to_fujitsu(ha_swing: str) -> constants.VerticalSwingPositions:
     return constants.VerticalSwingPositions(ha_swing)
 
+
 def fujitsu_swing_to_ha(fujitsu_swing: constants.VerticalSwingPositions) -> str:
     return str(fujitsu_swing)
+
 
 SWING_MODES_4 = [
     VERTICAL_SWING,
@@ -110,6 +114,7 @@ async def async_setup_entry(
 
     async_add_entities(entities)
 
+
 async def update_listener(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
     """Update listener."""
     await hass.config_entries.async_reload(config_entry.entry_id)
@@ -136,10 +141,14 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         HVACMode.AUTO,
     ]
 
-    def __init__(self, instance: AirstageData, ac_key: str, config_entry: ConfigEntry) -> None:
+    def __init__(
+        self, instance: AirstageData, ac_key: str, config_entry: ConfigEntry
+    ) -> None:
         """Initialize an AdvantageAir AC unit."""
         super().__init__(instance, ac_key)
-        self._turn_on_before_set_temp = config_entry.options.get(CONF_TURN_ON_BEFORE_SET_TEMP, False)
+        self._turn_on_before_set_temp = config_entry.options.get(
+            CONF_TURN_ON_BEFORE_SET_TEMP, False
+        )
 
     @property
     def target_temperature(self) -> float | None:
@@ -236,7 +245,11 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     @property
     def preset_modes(self) -> list[str] | None:
         """Return preset modes if supported."""
-        return [PRESET_NONE, MINIMUM_HEAT] if self._ac.get_minimum_heat() is not None else None
+        return (
+            [PRESET_NONE, MINIMUM_HEAT]
+            if self._ac.get_minimum_heat() is not None
+            else None
+        )
 
     async def async_update(self) -> None:
         """Retrieve latest state."""
@@ -285,7 +298,11 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     @property
     def supported_features(self) -> ClimateEntityFeature:
         """Return the list of supported features."""
-        supported_features = ClimateEntityFeature.FAN_MODE        | ClimateEntityFeature.TURN_OFF | ClimateEntityFeature.TURN_ON
+        supported_features = (
+            ClimateEntityFeature.FAN_MODE
+            | ClimateEntityFeature.TURN_OFF
+            | ClimateEntityFeature.TURN_ON
+        )
 
         # Do not vary this by mode, otherwise devices in fan_mode are not referencable in the UX
         supported_features |= ClimateEntityFeature.TARGET_TEMPERATURE
