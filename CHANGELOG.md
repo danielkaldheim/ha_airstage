@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.2...v1.4.3) (2025-06-06)
+
+
+### Bug Fixes
+
+* **configuration:** [#75](https://github.com/danielkaldheim/ha_airstage/issues/75) Fixing config flow ([c9c384c](https://github.com/danielkaldheim/ha_airstage/commit/c9c384cfeca6601aa00b43cfe41eb03fb11e0bed))
+
 ## [1.4.2](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.1...v1.4.2) (2025-05-14)
 
 
