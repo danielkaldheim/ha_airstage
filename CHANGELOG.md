@@ -1,3 +1,10 @@
+## [1.4.4](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.3...v1.4.4) (2025-06-07)
+
+
+### Bug Fixes
+
+* **climate:** [#70](https://github.com/danielkaldheim/ha_airstage/issues/70) hacking in a fallback for min/max temperatures when off / fan mode ([20877d2](https://github.com/danielkaldheim/ha_airstage/commit/20877d27e797bc3f382540d34be21935445848d4))
+
 ## [1.4.3](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.2...v1.4.3) (2025-06-06)
 
 
