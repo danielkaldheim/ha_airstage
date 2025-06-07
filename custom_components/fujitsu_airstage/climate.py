@@ -165,12 +165,12 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     @property
     def min_temp(self) -> float | None:
         """Return the minimum temperature for the current mode."""
-        return self._ac.get_minimum_temperature()
+        return self._ac.get_minimum_temperature() or constants.ACConstants.COOL_MIN_TEMP
 
     @property
     def max_temp(self) -> float | None:
         """Return the maximum temperature for the current mode."""
-        return self._ac.get_maximum_temperature()
+        return self._ac.get_maximum_temperature() or constants.ACConstants.HEAT_MAX_TEMP
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""
