@@ -23,6 +23,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import (
+    AIRSTAGE_LOCAL_RETRY,
     AIRSTAGE_RETRY,
     CONF_LOCAL,
     CONF_SELECT_POLLING,
@@ -60,8 +61,9 @@ class OptionsFlow(config_entries.OptionsFlow):
             if new_ip:
                 try:
                     ip_address(new_ip)
-                except ValueError:
+                except ValueError as e:
                     errors["base"] = "invalid_ip"
+                    _LOGGER.warning("Error reconfiguring device", exc_info=e)
                 else:
                     # If IP is good, update config_entry.data
                     new_data = {
@@ -165,7 +167,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         try:
             hub = airstage_api.ApiLocal(
                 session=async_get_clientsession(self.hass),
-                retry=AIRSTAGE_RETRY,
+                retry=AIRSTAGE_LOCAL_RETRY,
                 device_id=user_data[CONF_DEVICE_ID],
                 ip_address=user_data[CONF_IP_ADDRESS],
             )
@@ -213,10 +215,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema = local_data_schema
             try:
                 ip_address(user_input[CONF_IP_ADDRESS])
-            except ValueError:
+            except ValueError as e:
                 errors["base"] = "address/netmask is invalid"
-            except Exception:  # noqa: BLE001
+                _LOGGER.warning(errors["base"], exc_info=e)
+            except Exception as e:  # noqa: BLE001
                 errors["base"] = "address/netmask is invalid"
+                _LOGGER.warning(errors["base"], exc_info=e)
 
             user_input[CONF_DEVICE_ID] = (
                 str(user_input[CONF_DEVICE_ID]).replace(":", "").upper()
@@ -230,19 +234,22 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 try:
                     hub = airstage_api.ApiLocal(
                         session=async_get_clientsession(self.hass),
-                        retry=AIRSTAGE_RETRY,
+                        retry=AIRSTAGE_LOCAL_RETRY,
                         device_id=user_input[CONF_DEVICE_ID],
                         ip_address=user_input[CONF_IP_ADDRESS],
                     )
 
                     if not await hub.get_parameters(["iu_model"]):
                         raise InvalidAuth
-                except airstage_api.ApiError:
+                except airstage_api.ApiError as e:
                     errors["base"] = "cannot_connect"
-                except CannotConnect:
+                    _LOGGER.warning(errors["base"], exc_info=e)
+                except CannotConnect as e:
                     errors["base"] = "cannot_connect"
-                except InvalidAuth:
+                    _LOGGER.warning(errors["base"], exc_info=e)
+                except InvalidAuth as e:
                     errors["base"] = "invalid_auth"
+                    _LOGGER.warning(errors["base"], exc_info=e)
                 except Exception:  # pylint: disable=broad-except
                     _LOGGER.exception("Unexpected exception")
                     errors["base"] = "unknown"
@@ -330,7 +337,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     try:
                         hub = airstage_api.ApiLocal(
                             session=async_get_clientsession(self.hass),
-                            retry=AIRSTAGE_RETRY,
+                            retry=AIRSTAGE_LOCAL_RETRY,
                             device_id=user_input[CONF_DEVICE_ID],
                             ip_address=user_input[CONF_IP_ADDRESS],
                         )
@@ -339,10 +346,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             raise InvalidAuth
                     except airstage_api.ApiError:
                         errors["base"] = "cannot_connect"
+                        _LOGGER.warning(errors["base"], exc_info=e)
                     except CannotConnect:
                         errors["base"] = "cannot_connect"
+                        _LOGGER.warning(errors["base"], exc_info=e)
                     except InvalidAuth:
                         errors["base"] = "invalid_auth"
+                        _LOGGER.warning(errors["base"], exc_info=e)
                     except Exception:  # pylint: disable=broad-except
                         _LOGGER.exception("Unexpected exception")
                         errors["base"] = "unknown"
