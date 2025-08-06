@@ -1,3 +1,10 @@
+## [1.4.5](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.4...v1.4.5) (2025-08-06)
+
+
+### Bug Fixes
+
+* **setup:** [#90](https://github.com/danielkaldheim/ha_airstage/issues/90) improving logging for failures adding new device ([c4689d0](https://github.com/danielkaldheim/ha_airstage/commit/c4689d08ea84cab8070161a60b1491b502effa5f))
+
 ## [1.4.4](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.3...v1.4.4) (2025-06-07)
 
 
