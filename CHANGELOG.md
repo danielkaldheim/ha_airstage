@@ -1,3 +1,10 @@
+## [1.4.6](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.5...v1.4.6) (2025-08-06)
+
+
+### Bug Fixes
+
+* **debug:** removing pyairstage from logging configuration in attempt to improve debug logging usability ([821d3cb](https://github.com/danielkaldheim/ha_airstage/commit/821d3cb3e3b7072275992d0e4ce7ad68e2d444ef))
+
 ## [1.4.5](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.4...v1.4.5) (2025-08-06)
 
 
