@@ -2,7 +2,7 @@
   "domain": "fujitsu_airstage",
   "name": "Fujitsu Airstage",
   "codeowners": [
-    "@danielkaldheim"
+    "@danielkaldheim", "@ohshazbot"
   ],
   "config_flow": true,
   "dependencies": [],
