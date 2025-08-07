@@ -24,16 +24,12 @@ jobs:
           path: |
             ~/.cache/pip
           key: custom-component-ci
+      - name: Rerun pre commit
+        uses: pre-commit/action@v3.0.1
       - uses: "hacs/action@main"
         name: HACS validation
         with:
           category: "integration"
-      # - uses: KTibow/ha-blueprint@stable
-      #   name: CI
-      #   if: github.event_name != 'pull_request'
-      #   with:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   hacs:
     name: HACS Validation
     runs-on: "ubuntu-latest"

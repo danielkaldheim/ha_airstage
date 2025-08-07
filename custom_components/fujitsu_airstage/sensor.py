@@ -5,15 +5,6 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import Any
 
-from pyairstage import constants
-from .entity import AirstageAcEntity
-from .models import AirstageData
-from homeassistant.util import slugify
-
-from .const import (
-    DOMAIN as AIRSTAGE_DOMAIN,
-)
-
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -22,8 +13,15 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfTemperature
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import config_validation as cv, entity_platform
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import slugify
+from pyairstage import constants
+
+from .const import DOMAIN as AIRSTAGE_DOMAIN
+from .entity import AirstageAcEntity
+from .models import AirstageData
 
 
 async def async_setup_entry(

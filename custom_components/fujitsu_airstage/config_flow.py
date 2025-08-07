@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-from ipaddress import ip_address
 import logging
+from ipaddress import ip_address
 from typing import Any
 
 import pyairstage.airstageApi as airstage_api
 import voluptuous as vol
-
 from homeassistant import config_entries
-from homeassistant.helpers.service_info.dhcp import DhcpServiceInfo
 from homeassistant.const import (
     CONF_COUNTRY,
     CONF_DEVICE_ID,
@@ -21,6 +19,7 @@ from homeassistant.const import (
 from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.service_info.dhcp import DhcpServiceInfo
 
 from .const import (
     AIRSTAGE_LOCAL_RETRY,

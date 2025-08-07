@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
 import logging
-from .models import AirstageData
+from datetime import timedelta
 
+import pyairstage.airstageApi as airstage_api
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_COUNTRY,
@@ -16,11 +16,10 @@ from homeassistant.const import (
     Platform,
 )
 from homeassistant.core import HomeAssistant
-import pyairstage.airstageApi as airstage_api
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import (
-    DataUpdateCoordinator,
     ConfigEntryError,
+    DataUpdateCoordinator,
 )
 
 from .const import (
@@ -30,6 +29,7 @@ from .const import (
     AIRSTAGE_SYNC_LOCAL_INTERVAL,
     DOMAIN,
 )
+from .models import AirstageData
 
 _LOGGER = logging.getLogger(__name__)
 

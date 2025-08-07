@@ -6,28 +6,30 @@ import logging
 from typing import Any
 
 from homeassistant.components.climate import (
+    ATTR_HVAC_MODE,
     FAN_AUTO,
     FAN_HIGH,
     FAN_LOW,
     FAN_MEDIUM,
+    PRESET_NONE,
     ClimateEntity,
     ClimateEntityFeature,
     HVACMode,
-    PRESET_NONE,
-    ATTR_HVAC_MODE,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
 from pyairstage import constants
+
 from .const import (
-    DOMAIN as AIRSTAGE_DOMAIN,
-    FAN_QUIET,
-    VERTICAL_SWING,
-    MINIMUM_HEAT,
     CONF_TURN_ON_BEFORE_SET_TEMP,
+)
+from .const import DOMAIN as AIRSTAGE_DOMAIN
+from .const import (
+    FAN_QUIET,
+    MINIMUM_HEAT,
+    VERTICAL_SWING,
 )
 from .entity import AirstageAcEntity
 from .models import AirstageData

@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import pyairstage.airstageApi as airstage_api
-
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 
