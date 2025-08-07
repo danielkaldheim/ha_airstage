@@ -1,46 +1,48 @@
 {
-    "options": {
-        "step": {
-            "init": {
-                "data": {
-                    "conf_turn_on_before_set_temp": "Turn on device before setting temperature"
-                }
-            }
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "conf_turn_on_before_set_temp": "Turn on device before setting temperature"
         }
-    },
-    "config": {
-        "abort": {
-            "already_configured": "Device is already configured",
-            "not_a_fujitsu_airstage": "Device is not a Fujitsu Airstage"
-        },
-        "error": {
-            "cannot_connect": "Failed to connect",
-            "invalid_auth": "Invalid authentication",
-            "unknown": "Unexpected error"
-        },
-        "step": {
-            "details": {
-                "data": {
-                    "local": "Local",
-                    "cloud": "Cloud",
-                    "device_id": "Device ID",
-                    "ip_address": "IP address",
-                    "host": "Host",
-                    "password": "Password",
-                    "username": "Username",
-                    "select_polling_desc": "DESC 1"
-                }
-            },
-            "user": {
-                "data": {
-                    "local": "Local",
-                    "cloud": "Cloud",
-                    "host": "Host",
-                    "password": "Password",
-                    "username": "Username",
-                    "select_polling_desc": "DESC 2"
-                }
-            }
-        }
+      }
     }
+  },
+  "config": {
+    "step": {
+      "details": {
+        "data": {
+          "local": "Local",
+          "cloud": "Cloud",
+          "select_polling_desc": "DESC 1",
+          "username": "Username",
+          "password": "Password",
+          "country": "Country",
+          "device_id": "Device ID",
+          "ip_address": "IP address"
+        }
+      },
+      "user": {
+        "data": {
+          "device_id": "Device ID",
+          "ip_address": "IP address",
+          "conf_turn_on_before_set_temp": "Turn on device before setting temperature"
+        }
+      },
+      "reconfigure": {
+        "data": {
+          "ip_address": "IP address"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect",
+      "invalid_auth": "Invalid authentication",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "Device is already configured",
+      "not_a_fujitsu_airstage": "Device is not a Fujitsu Airstage"
+    }
+  }
 }

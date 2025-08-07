@@ -18,9 +18,13 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 import pyairstage.airstageApi as airstage_api
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import (
+    DataUpdateCoordinator,
+    ConfigEntryError,
+)
 
 from .const import (
+    AIRSTAGE_LOCAL_RETRY,
     AIRSTAGE_RETRY,
     AIRSTAGE_SYNC_INTERVAL,
     AIRSTAGE_SYNC_LOCAL_INTERVAL,
@@ -64,7 +68,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             try:
                 return await apiCloud.get_devices()
             except airstage_api.ApiError as err:
-                raise UpdateFailed(err) from err
+                raise ConfigEntryError(err) from err
 
         coordinator = DataUpdateCoordinator(
             hass,
@@ -82,7 +86,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if CONF_DEVICE_ID in entry.data:
         apiLocal = airstage_api.ApiLocal(
             session=async_get_clientsession(hass),
-            retry=AIRSTAGE_RETRY,
+            retry=AIRSTAGE_LOCAL_RETRY,
             device_id=entry.data[CONF_DEVICE_ID],
             ip_address=entry.data[CONF_IP_ADDRESS],
         )
@@ -99,7 +103,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             try:
                 return await apiLocal.get_devices()
             except airstage_api.ApiError as err:
-                raise UpdateFailed(err) from err
+                raise ConfigEntryError(
+                    f"Timeout while connecting to device for data {entry.data} and options {entry.options}"
+                ) from err
 
         coordinator = DataUpdateCoordinator(
             hass,

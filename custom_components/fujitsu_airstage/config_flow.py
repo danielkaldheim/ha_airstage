@@ -33,6 +33,24 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+IP_SCHEMA = {
+    vol.Required(CONF_IP_ADDRESS): str,
+}
+
+LOCAL_DATA_SCHEMA = IP_SCHEMA | {
+    vol.Required(CONF_DEVICE_ID): str,
+}
+
+CLOUD_DATA_SCHEMA = {
+    vol.Required(CONF_USERNAME): str,
+    vol.Required(CONF_PASSWORD): str,
+    vol.Optional(CONF_COUNTRY, default="Norway"): str,
+}
+
+OPTIONS_SCHEMA = {
+    vol.Optional(CONF_TURN_ON_BEFORE_SET_TEMP, default=False): bool,
+}
+
 
 class OptionsFlow(config_entries.OptionsFlow):
     """Handle an options flow for Airstage Fujitsu."""
@@ -47,59 +65,18 @@ class OptionsFlow(config_entries.OptionsFlow):
         """Manage the options."""
         errors: dict[str, str] = {}
 
-        # We read from config_entry.data because that's where we stored IP at initial setup
-        current_ip = self._config_entry.data.get(CONF_IP_ADDRESS, "")
-        # this is purely an option though
-        current_turn_on_before_set_temp = self._config_entry.options.get(
-            CONF_TURN_ON_BEFORE_SET_TEMP, False
-        )
-
         if user_input is not None:
-            # Validate IP if user changed it
-            new_ip = user_input.get(CONF_IP_ADDRESS, current_ip)
+            return self.async_create_entry(
+                title=f"{CONF_LOCAL} - {self.config_entry.data[CONF_DEVICE_ID]}",
+                data=user_input,
+            )
 
-            if new_ip:
-                try:
-                    ip_address(new_ip)
-                except ValueError as e:
-                    errors["base"] = "invalid_ip"
-                    _LOGGER.warning("Error reconfiguring device", exc_info=e)
-                else:
-                    # If IP is good, update config_entry.data
-                    new_data = {
-                        **self._config_entry.data,
-                        CONF_IP_ADDRESS: new_ip,
-                        CONF_DEVICE_ID: self._config_entry.data.get(CONF_DEVICE_ID, ""),
-                        CONF_TURN_ON_BEFORE_SET_TEMP: user_input.get(
-                            CONF_TURN_ON_BEFORE_SET_TEMP,
-                            current_turn_on_before_set_temp,
-                        ),
-                    }
-
-                    return self.async_create_entry(data=new_data)
-
-        # If new_ip was not provided or invalid, show error
-        # But also handle toggles in options
         return self.async_show_form(
             step_id="init",
-            data_schema=self._build_schema(current_ip, current_turn_on_before_set_temp),
+            data_schema=self.add_suggested_values_to_schema(
+                vol.Schema(OPTIONS_SCHEMA), self.config_entry.options
+            ),
             errors=errors,
-        )
-
-    def _build_schema(self, default_ip: str, default_turn_on_before_set_temp: bool):
-        """Build the schema for the OptionsFlow form."""
-        return vol.Schema(
-            {
-                vol.Optional(
-                    CONF_IP_ADDRESS,
-                    description={"suggested_value": default_ip},
-                    default=default_ip,
-                ): str,
-                vol.Optional(
-                    CONF_TURN_ON_BEFORE_SET_TEMP,
-                    default=default_turn_on_before_set_temp,
-                ): bool,
-            }
         )
 
 
@@ -107,15 +84,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Airstage Fujitsu."""
 
     VERSION = 1
-
-    def __init__(self) -> None:
-        """Initialize the config flow."""
-        self.username = None
-        self.password = None
-        self.country = None
-        self.device_id = None
-        self.ip_address = None
-        self.turn_on_before_set_temp = False
 
     @staticmethod
     @callback
@@ -188,31 +156,18 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> config_entries.ConfigFlowResult:
         """Handle the details step (local or cloud)."""
         errors: dict[str, str] = {}
-        local_data_schema = {
-            vol.Required(CONF_DEVICE_ID, default=self.device_id): str,
-            vol.Required(CONF_IP_ADDRESS, default=self.ip_address): str,
-        }
-        cloud_data_schema = {
-            vol.Required(CONF_USERNAME, default=self.username): str,
-            vol.Required(CONF_PASSWORD, default=self.password): str,
-            vol.Optional(CONF_COUNTRY, default="Norway"): str,
-        }
-
-        data_schema = cloud_data_schema  # Default data schema
 
         if user_input is None:
             return await self.async_step_user()
 
+        data_schema = CLOUD_DATA_SCHEMA  # Default data schema
+
         # Check if user selected local in a prior step
-        if (
-            CONF_SELECT_POLLING in user_input
-            and user_input[CONF_SELECT_POLLING] == CONF_LOCAL
-        ):
-            data_schema = local_data_schema
+        if CONF_DEVICE_ID in user_input:
+            data_schema = LOCAL_DATA_SCHEMA
 
         # LOCAL route
         if CONF_DEVICE_ID in user_input or CONF_IP_ADDRESS in user_input:
-            data_schema = local_data_schema
             try:
                 ip_address(user_input[CONF_IP_ADDRESS])
             except ValueError as e:
@@ -305,19 +260,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
-        """Handle the user step."""
+        """Set up a new device."""
         errors: dict[str, str] = {}
-
-        local_data_schema = {
-            vol.Required(CONF_DEVICE_ID, default=self.device_id): str,
-            vol.Required(CONF_IP_ADDRESS, default=self.ip_address): str,
-        }
-
-        data_schema = local_data_schema
 
         if user_input is not None:
             if CONF_DEVICE_ID in user_input or CONF_IP_ADDRESS in user_input:
-                data_schema = local_data_schema
                 try:
                     ip_address(user_input[CONF_IP_ADDRESS])
                 except ValueError:
@@ -333,8 +280,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     errors["base"] = "invalid device id"
 
                 if not errors:
-                    # Attempt to connect
                     try:
+                        # Attempt to connect
                         hub = airstage_api.ApiLocal(
                             session=async_get_clientsession(self.hass),
                             retry=AIRSTAGE_LOCAL_RETRY,
@@ -346,24 +293,64 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             raise InvalidAuth
                     except airstage_api.ApiError:
                         errors["base"] = "cannot_connect"
-                        _LOGGER.warning(errors["base"], exc_info=e)
+                        _LOGGER.debug(errors["base"], exc_info=e)
                     except CannotConnect:
                         errors["base"] = "cannot_connect"
-                        _LOGGER.warning(errors["base"], exc_info=e)
+                        _LOGGER.debug(errors["base"], exc_info=e)
                     except InvalidAuth:
                         errors["base"] = "invalid_auth"
-                        _LOGGER.warning(errors["base"], exc_info=e)
+                        _LOGGER.debug(errors["base"], exc_info=e)
                     except Exception:  # pylint: disable=broad-except
                         _LOGGER.exception("Unexpected exception")
                         errors["base"] = "unknown"
                     else:
+                        data_input = {
+                            k: v
+                            for k, v in user_input.items()
+                            if k != CONF_TURN_ON_BEFORE_SET_TEMP
+                        }
+                        user_options = {
+                            CONF_TURN_ON_BEFORE_SET_TEMP: user_input.get(
+                                CONF_TURN_ON_BEFORE_SET_TEMP
+                            )
+                        }
                         return self.async_create_entry(
                             title=f"{CONF_LOCAL} - {user_input[CONF_DEVICE_ID]}",
-                            data=user_input,
+                            data=data_input,
+                            options=user_options,
                         )
 
         return self.async_show_form(
-            step_id="details", data_schema=vol.Schema(data_schema), errors=errors
+            step_id="user",
+            data_schema=vol.Schema(LOCAL_DATA_SCHEMA | OPTIONS_SCHEMA),
+            errors=errors,
+        )
+
+    async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None):
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            # Validate IP if user changed it
+            current_ip = self._get_reconfigure_entry().data[CONF_IP_ADDRESS]
+            new_ip = user_input[CONF_IP_ADDRESS]
+
+            try:
+                ip_address(new_ip)
+            except ValueError as e:
+                errors["base"] = "invalid_ip"
+                _LOGGER.warning("Error reconfiguring device", exc_info=e)
+            else:
+                return self.async_update_reload_and_abort(
+                    self._get_reconfigure_entry(),
+                    data_updates=user_input,
+                )
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=self.add_suggested_values_to_schema(
+                vol.Schema(IP_SCHEMA), self._get_reconfigure_entry().data
+            ),
+            errors=errors,
         )
 
 

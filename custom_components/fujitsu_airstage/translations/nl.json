@@ -1,46 +1,48 @@
 {
   "options": {
-      "step": {
-          "init": {
-              "data": {
-                  "conf_turn_on_before_set_temp": "Het toestel inschakelen alvorens de temperatuur in te stellen"
-              }
-          }
+    "step": {
+      "init": {
+        "data": {
+          "conf_turn_on_before_set_temp": "Het toestel inschakelen alvorens de temperatuur in te stellen"
+        }
       }
+    }
   },
   "config": {
-      "abort": {
-          "already_configured": "Toestel is reeds ingesteld",
-          "not_a_fujitsu_airstage": "Dit apparaat is geen Fujitsu Airstage"
+    "step": {
+      "details": {
+        "data": {
+          "local": "Lokaal",
+          "cloud": "Cloud",
+          "select_polling_desc": "BESCHR 1",
+          "username": "Gebruikersnaam",
+          "password": "Wachtwoord",
+          "country": "Country",
+          "device_id": "Toestel ID",
+          "ip_address": "IP adres"
+        }
       },
-      "error": {
-          "cannot_connect": "Verbinding is mislukt",
-          "invalid_auth": "Ongeldige authenticatie",
-          "unknown": "Onverwachte fout"
+      "user": {
+        "data": {
+          "device_id": "Toestel ID",
+          "ip_address": "IP adres",
+          "conf_turn_on_before_set_temp": "Het toestel inschakelen alvorens de temperatuur in te stellen"
+        }
       },
-      "step": {
-          "details": {
-              "data": {
-                  "local": "Lokaal",
-                  "cloud": "Cloud",
-                  "device_id": "Toestel ID",
-                  "ip_address": "IP adres",
-                  "host": "Host",
-                  "password": "Wachtwoord",
-                  "username": "Gebruikersnaam",
-                  "select_polling_desc": "BESCHR 1"
-              }
-          },
-          "user": {
-              "data": {
-                  "local": "Lokaal",
-                  "cloud": "Cloud",
-                  "host": "Host",
-                  "password": "Wachtwoord",
-                  "username": "Gebruikersnaam",
-                  "select_polling_desc": "BESCHR 2"
-              }
-          }
+      "reconfigure": {
+        "data": {
+          "ip_address": "IP adres"
+        }
       }
+    },
+    "error": {
+      "cannot_connect": "Verbinding is mislukt",
+      "invalid_auth": "Ongeldige authenticatie",
+      "unknown": "Onverwachte fout"
+    },
+    "abort": {
+      "already_configured": "Toestel is reeds ingesteld",
+      "not_a_fujitsu_airstage": "Dit apparaat is geen Fujitsu Airstage"
+    }
   }
 }
