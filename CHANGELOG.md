@@ -1,3 +1,10 @@
+## [1.4.7](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.6...v1.4.7) (2025-08-07)
+
+
+### Bug Fixes
+
+* **reconfigure:** [#85](https://github.com/danielkaldheim/ha_airstage/issues/85) Reworking workflows for ip address change ([422d967](https://github.com/danielkaldheim/ha_airstage/commit/422d967b3544982c66962a2fadf875e0562d6209))
+
 ## [1.4.6](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.5...v1.4.6) (2025-08-06)
 
 
