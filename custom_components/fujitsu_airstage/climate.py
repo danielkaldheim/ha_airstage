@@ -215,12 +215,17 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         Requires ClimateEntityFeature.SWING_MODE.
         """
 
-        if self._ac.get_vertical_swing() != None:
-            if self._ac.get_vertical_swing() == constants.BooleanDescriptors.ON:
-                return VERTICAL_SWING
+        try:
+            if self._ac.get_vertical_swing() != None:
+                if self._ac.get_vertical_swing() == constants.BooleanDescriptors.ON:
+                    return VERTICAL_SWING
 
-        if self._ac.get_vertical_direction() != None:
-            return fujitsu_swing_to_ha(self._ac.get_vertical_direction())
+            if self._ac.get_vertical_direction() != None:
+                return fujitsu_swing_to_ha(self._ac.get_vertical_direction())
+        except TypeError as e:
+            # #89 attempting to add some resillience until we can harden pyairstage
+            _LOGGER.debug("Could not determine swing state", exc_info=e)
+            return None
 
     @property
     def swing_modes(self) -> list[str] | None:
