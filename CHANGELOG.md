@@ -1,3 +1,10 @@
+## [1.4.8](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.7...v1.4.8) (2025-08-08)
+
+
+### Bug Fixes
+
+* **error handling:** hardening for transient availability cases, maybe ([6045243](https://github.com/danielkaldheim/ha_airstage/commit/60452438ee14af9ea40c1f6b28b1e3068f50765d))
+
 ## [1.4.7](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.6...v1.4.7) (2025-08-07)
 
 
