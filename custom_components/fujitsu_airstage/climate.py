@@ -56,7 +56,9 @@ FUJITSU_TO_HA_STATE = {
 FUJITSU_FAN_TO_HA = {
     constants.FanSpeedDescriptors.QUIET: FAN_QUIET,
     constants.FanSpeedDescriptors.LOW: FAN_LOW,
+    constants.FanSpeedDescriptors.MEDIUM_LOW: "medium-low",
     constants.FanSpeedDescriptors.MEDIUM: FAN_MEDIUM,
+    constants.FanSpeedDescriptors.MEDIUM_HIGH: "medium-high",
     constants.FanSpeedDescriptors.HIGH: FAN_HIGH,
     constants.FanSpeedDescriptors.AUTO: FAN_AUTO,
     constants.CAPABILITY_NOT_AVAILABLE: None,
