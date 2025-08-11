@@ -14,5 +14,5 @@
   "requirements": [
     "pyairstage>=2.3,<3"
   ],
-  "version": "1.4.8"
+  "version": "1.5.0"
 }

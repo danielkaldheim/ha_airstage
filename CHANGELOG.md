@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.8...v1.5.0) (2025-08-11)
+
+
+### Features
+
+* **fan speed:** support reading (no writing) medium-low and medium-high fan speeds ([942f0aa](https://github.com/danielkaldheim/ha_airstage/commit/942f0aa5e37015c940e271df12b8ef56aa5c55e0))
+
 ## [1.4.8](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.7...v1.4.8) (2025-08-08)
 
 
