@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.5.0...v1.5.1) (2025-09-08)
+
+
+### Bug Fixes
+
+* **error handling:** fixing broken error result handling in config flow ([d8d9d1e](https://github.com/danielkaldheim/ha_airstage/commit/d8d9d1e4f89ab071dfb86ceb7fe0db10f5753c98))
+
 # [1.5.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.4.8...v1.5.0) (2025-08-11)
 
 
