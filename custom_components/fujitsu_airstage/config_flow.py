@@ -290,13 +290,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                         if not await hub.get_parameters(["iu_model"]):
                             raise InvalidAuth
-                    except airstage_api.ApiError:
+                    except airstage_api.ApiError as e:
                         errors["base"] = "cannot_connect"
                         _LOGGER.debug(errors["base"], exc_info=e)
-                    except CannotConnect:
+                    except CannotConnect as e:
                         errors["base"] = "cannot_connect"
                         _LOGGER.debug(errors["base"], exc_info=e)
-                    except InvalidAuth:
+                    except InvalidAuth as e:
                         errors["base"] = "invalid_auth"
                         _LOGGER.debug(errors["base"], exc_info=e)
                     except Exception:  # pylint: disable=broad-except
