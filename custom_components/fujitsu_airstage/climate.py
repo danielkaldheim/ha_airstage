@@ -99,6 +99,18 @@ SWING_MODES_6 = [
     constants.VerticalSwingPositions.LOWEST,
 ]
 
+SWING_MODES_8 = [
+    VERTICAL_SWING,
+    constants.VerticalSwingPositions.HIGHEST,
+    constants.VerticalSwingPositions.HIGHER,
+    constants.VerticalSwingPositions.HIGH,
+    constants.VerticalSwingPositions.CENTER_HIGH,
+    constants.VerticalSwingPositions.CENTER_LOW,
+    constants.VerticalSwingPositions.LOW,
+    constants.VerticalSwingPositions.LOWER,
+    constants.VerticalSwingPositions.LOWEST,
+]
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -234,10 +246,14 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         """Return swing modes if supported."""
         if self.swing_mode:
             total_positions = self._ac.get_num_vertical_swing_positions()
-            if total_positions == 6:
+            if total_positions == 8:
+                return SWING_MODES_8
+            elif total_positions == 6:
                 return SWING_MODES_6
-            else:
+            elif total_positions == 4:
                 return SWING_MODES_4
+            else:
+                raise ValueError(f"Unknown number of vertical swing positions ({total_positions}). Only 4, 6, and 8 are supported.")
         return None
 
     @property
