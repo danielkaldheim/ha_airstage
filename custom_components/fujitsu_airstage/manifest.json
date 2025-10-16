@@ -12,7 +12,7 @@
   "issue_tracker": "https://github.com/danielkaldheim/ha_airstage/issues",
   "loggers": [],
   "requirements": [
-    "pyairstage"
+    "pyairstage>=2.3,<3"
   ],
   "version": "1.5.1"
 }
