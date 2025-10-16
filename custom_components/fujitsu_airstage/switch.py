@@ -40,6 +40,11 @@ async def async_setup_entry(
                 entities.append(AirstageQuietFanSwitch(instance, ac_key))
             if data["iu_wifi_led"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
                 entities.append(AirstageIndoorLedSwitch(instance, ac_key))
+            if (
+                data["iu_hmn_det_auto_save"]["value"]
+                != constants.CAPABILITY_NOT_AVAILABLE
+            ):
+                entities.append(AirstageHumanDetectionAutoSaveSwitch(instance, ac_key))
 
     async_add_entities(entities)
 
@@ -250,3 +255,31 @@ class AirstagePowerSwitch(AirstageAcEntity, SwitchEntity):
         """Turn power off."""
         await self._ac.turn_off()
         await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+
+
+class AirstageHumanDetectionAutoSaveSwitch(AirstageAcEntity, SwitchEntity):
+    """Representation of Airstage Human Detection Auto Save switch."""
+
+    _attr_name = "Human Detection"
+    _attr_device_class = SwitchDeviceClass.SWITCH
+    _attr_icon = "mdi:account-eye"
+
+    def __init__(self, instance: AirstageData, ac_key: str) -> None:
+        """Initialize Airstage Human Detection Auto Save switch."""
+        super().__init__(instance, ac_key)
+        self._attr_unique_id += "-human-auto-save"
+
+    @property
+    def is_on(self) -> bool:
+        """Return the Human Detection Auto Save status."""
+        return self._ac.get_hmn_detection_auto_save() == constants.BooleanDescriptors.ON
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Turn Human Detection Auto Save on."""
+        await self._ac.set_hmn_detection_auto_save(constants.BooleanProperty.ON)
+        await self.instance.coordinator.async_refresh()
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Turn Human Detection Auto Save off."""
+        await self._ac.set_hmn_detection_auto_save(constants.BooleanProperty.OFF)
+        await self.instance.coordinator.async_refresh()
