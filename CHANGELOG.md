@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.5.1...v1.6.0) (2025-10-16)
+
+
+### Features
+
+* **hmn detection:** Adding Human Sensor ([b2c5a8e](https://github.com/danielkaldheim/ha_airstage/commit/b2c5a8e77ed720154f76d1e97a74997e20b62540))
+
 ## [1.5.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.5.0...v1.5.1) (2025-09-08)
 
 
