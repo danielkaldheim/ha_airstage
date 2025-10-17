@@ -253,7 +253,9 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
             elif total_positions == 4:
                 return SWING_MODES_4
             else:
-                raise ValueError(f"Unknown number of vertical swing positions ({total_positions}). Only 4, 6, and 8 are supported.")
+                raise ValueError(
+                    f"Unknown number of vertical swing positions ({total_positions}). Only 4, 6, and 8 are supported."
+                )
         return None
 
     @property
