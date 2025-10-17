@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.6.0...v1.7.0) (2025-10-17)
+
+
+### Features
+
+* **swing:** Feature/eight vertical swing support ([#97](https://github.com/danielkaldheim/ha_airstage/issues/97)) ([131b306](https://github.com/danielkaldheim/ha_airstage/commit/131b306c804ad30be70758486154039534951126))
+
 # [1.6.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.5.1...v1.6.0) (2025-10-16)
 
 
