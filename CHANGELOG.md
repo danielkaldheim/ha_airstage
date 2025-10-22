@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.7.0...v1.7.1) (2025-10-22)
+
+
+### Bug Fixes
+
+* **pyairstage logging:** restoring pyairstage logging, it still has utility ([06b43c0](https://github.com/danielkaldheim/ha_airstage/commit/06b43c085fb530d5ca6286a5853f2cbd49dd2832))
+
 # [1.7.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.6.0...v1.7.0) (2025-10-17)
 
 
