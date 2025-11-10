@@ -1,3 +1,12 @@
+## [1.7.2](https://github.com/danielkaldheim/ha_airstage/compare/v1.7.1...v1.7.2) (2025-11-10)
+
+
+### Bug Fixes
+
+* **connection:** bumping pyairstage version to get connection timeout increase ([405e790](https://github.com/danielkaldheim/ha_airstage/commit/405e790a4e784aac6985369f354ee3a62a33dab7))
+* **fault tolerance:** Do not try to convert None to Decimal ([e2387c5](https://github.com/danielkaldheim/ha_airstage/commit/e2387c5f0d0569ba7e0504aeca4aa0f9dd9af73f))
+* **naming:** Giving each local device a unique name for distinguishing in logs ([7732620](https://github.com/danielkaldheim/ha_airstage/commit/77326205deb1afb40cd17dc201d0be32cb7e359e))
+
 ## [1.7.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.7.0...v1.7.1) (2025-10-22)
 
 
