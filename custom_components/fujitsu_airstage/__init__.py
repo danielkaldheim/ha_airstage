@@ -84,17 +84,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     if CONF_DEVICE_ID in entry.data:
+        device_id = entry.data[CONF_DEVICE_ID]
         apiLocal = airstage_api.ApiLocal(
             session=async_get_clientsession(hass),
             retry=AIRSTAGE_LOCAL_RETRY,
-            device_id=entry.data[CONF_DEVICE_ID],
+            device_id=device_id,
             ip_address=entry.data[CONF_IP_ADDRESS],
         )
 
         hass.data.setdefault(
             DOMAIN,
             {
-                CONF_DEVICE_ID: entry.data[CONF_DEVICE_ID],
+                CONF_DEVICE_ID: device_id,
                 CONF_IP_ADDRESS: entry.data[CONF_IP_ADDRESS],
             },
         )
@@ -110,7 +111,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         coordinator = DataUpdateCoordinator(
             hass,
             _LOGGER,
-            name="Fujitsu Airstage",
+            name=f"Fujitsu Airstage {device_id}",
             update_method=async_get,
             update_interval=timedelta(seconds=AIRSTAGE_SYNC_LOCAL_INTERVAL),
         )
