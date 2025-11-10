@@ -80,13 +80,13 @@ class AirstageTemp(AirstageAcEntity, SensorEntity):
         self._attr_unique_id += f"{slugify(name)}-temp"
 
     @property
-    def native_value(self) -> Decimal:
+    def native_value(self) -> Decimal | None:
         """Return the current value of the measured temperature."""
         # value = self._ac.get_device_parameter(self.parameter)
         if self.parameter is constants.ACParameter.INDOOR_TEMPERATURE:
             value = self._ac.get_display_temperature()
-            return Decimal(value)
+            return Decimal(value) if value is not None else None
 
         if self.parameter is constants.ACParameter.OUTDOOR_TEMPERATURE:
             value = self._ac.get_outdoor_temperature()
-            return Decimal(value)
+            return Decimal(value) if value is not None else None
