@@ -1,7 +1,7 @@
 """Constants for the Airstage Fujitsu integration."""
 
 DOMAIN = "fujitsu_airstage"
-AIRSTAGE_LOCAL_RETRY = 3
+AIRSTAGE_LOCAL_RETRY = 5
 AIRSTAGE_RETRY = 10
 AIRSTAGE_SYNC_INTERVAL = 120
 AIRSTAGE_SYNC_LOCAL_INTERVAL = 10
