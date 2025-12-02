@@ -1,3 +1,10 @@
+## [1.7.3](https://github.com/danielkaldheim/ha_airstage/compare/v1.7.2...v1.7.3) (2025-12-02)
+
+
+### Bug Fixes
+
+* **connections:** Further attempts to improve connectivity / improve timeout failure visibility ([c342805](https://github.com/danielkaldheim/ha_airstage/commit/c34280564ee3e4829bd8bddef7e0864dc427f9da))
+
 ## [1.7.2](https://github.com/danielkaldheim/ha_airstage/compare/v1.7.1...v1.7.2) (2025-11-10)
 
 
