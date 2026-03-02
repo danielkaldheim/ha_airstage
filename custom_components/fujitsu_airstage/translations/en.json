@@ -10,6 +10,13 @@
   },
   "config": {
     "step": {
+      "init": {
+        "data": {
+          "conf_use_https": "Use HTTPS to connect to device"
+        }
+      }
+    },
+    "step": {
       "details": {
         "data": {
           "local": "Local",
@@ -19,19 +26,22 @@
           "password": "Password",
           "country": "Country",
           "device_id": "Device ID",
-          "ip_address": "IP address"
+          "ip_address": "IP address",
+          "conf_use_https": "Use HTTPS to connect to device"
         }
       },
       "user": {
         "data": {
           "device_id": "Device ID",
           "ip_address": "IP address",
+          "conf_use_https": "Use HTTPS to connect to device",
           "conf_turn_on_before_set_temp": "Turn on device before setting temperature"
         }
       },
       "reconfigure": {
         "data": {
-          "ip_address": "IP address"
+          "ip_address": "IP address",
+          "conf_use_https": "Use HTTPS to connect to device"
         }
       }
     },

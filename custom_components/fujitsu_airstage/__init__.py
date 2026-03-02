@@ -28,6 +28,7 @@ from .const import (
     AIRSTAGE_RETRY,
     AIRSTAGE_SYNC_INTERVAL,
     AIRSTAGE_SYNC_LOCAL_INTERVAL,
+    CONF_USE_HTTPS,
     DOMAIN,
 )
 from .models import AirstageData
@@ -89,12 +90,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if CONF_DEVICE_ID in entry.data:
         device_id = entry.data[CONF_DEVICE_ID]
         device_ip = entry.data[CONF_IP_ADDRESS]
+        use_https = entry.data.get(CONF_USE_HTTPS, False)
         apiLocal = airstage_api.ApiLocal(
             session=async_get_clientsession(hass),
             retry=AIRSTAGE_LOCAL_RETRY,
             timeout_seconds=AIRSTAGE_LOCAL_TIMEOUT_SECONDS,
             device_id=device_id,
             ip_address=device_ip,
+            use_https=use_https,
         )
 
         hass.data.setdefault(
@@ -102,6 +105,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             {
                 CONF_DEVICE_ID: device_id,
                 CONF_IP_ADDRESS: device_ip,
+                CONF_USE_HTTPS: use_https,
             },
         )
 

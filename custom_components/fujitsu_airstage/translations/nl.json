@@ -10,6 +10,13 @@
   },
   "config": {
     "step": {
+      "init": {
+        "data": {
+          "conf_use_https": "Gebruik HTTPS om verbinding te maken met het apparaat"
+        }
+      }
+    },
+    "step": {
       "details": {
         "data": {
           "local": "Lokaal",
@@ -19,19 +26,22 @@
           "password": "Wachtwoord",
           "country": "Country",
           "device_id": "Toestel ID",
-          "ip_address": "IP adres"
+          "ip_address": "IP adres",
+          "conf_use_https": "Gebruik HTTPS om verbinding te maken met het apparaat"
         }
       },
       "user": {
         "data": {
           "device_id": "Toestel ID",
           "ip_address": "IP adres",
+          "conf_use_https": "Gebruik HTTPS om verbinding te maken met het apparaat",
           "conf_turn_on_before_set_temp": "Het toestel inschakelen alvorens de temperatuur in te stellen"
         }
       },
       "reconfigure": {
         "data": {
-          "ip_address": "IP adres"
+          "ip_address": "IP adres",
+          "conf_use_https": "Gebruik HTTPS om verbinding te maken met het apparaat"
         }
       }
     },

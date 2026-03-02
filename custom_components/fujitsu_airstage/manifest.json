@@ -14,7 +14,7 @@
     "pyairstage"
   ],
   "requirements": [
-    "pyairstage>=3.0.2,<4"
+    "pyairstage>=3.1.2,<4"
   ],
   "version": "1.7.3"
 }
