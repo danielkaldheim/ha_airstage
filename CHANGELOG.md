@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.7.3...v1.8.0) (2026-03-03)
+
+
+### Features
+
+* **https support:** Attempting to add configuration to use https ([b9ce77c](https://github.com/danielkaldheim/ha_airstage/commit/b9ce77c8ddf03566126c240efea41f65a0b8176c))
+
 ## [1.7.3](https://github.com/danielkaldheim/ha_airstage/compare/v1.7.2...v1.7.3) (2025-12-02)
 
 
