@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.8.0...v1.8.1) (2026-04-20)
+
+
+### Bug Fixes
+
+* **timeouts:** bumping pyairstage minimum version to ensure TimeoutError handling change rolls out ([b6123a0](https://github.com/danielkaldheim/ha_airstage/commit/b6123a04787a2b2982828d3f72298c4ffb0fdff0))
+
 # [1.8.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.7.3...v1.8.0) (2026-03-03)
 
 
