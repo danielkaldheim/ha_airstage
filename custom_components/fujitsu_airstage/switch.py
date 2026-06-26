@@ -13,6 +13,14 @@ from .const import DOMAIN as AIRSTAGE_DOMAIN
 from .entity import AirstageAcEntity
 from .models import AirstageData
 
+# get_fan_speed() returns a FanSpeedDescriptors value, while set_fan_speed()
+# expects a FanSpeed value. Only manual fan speeds are restorable after Quiet.
+_RESTORABLE_FAN_SPEEDS = {
+    constants.FanSpeedDescriptors.LOW: constants.FanSpeed.LOW,
+    constants.FanSpeedDescriptors.MEDIUM: constants.FanSpeed.MEDIUM,
+    constants.FanSpeedDescriptors.HIGH: constants.FanSpeed.HIGH,
+}
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -180,6 +188,8 @@ class AirstageQuietFanSwitch(AirstageAcEntity, SwitchEntity):
         """Initialize an Airstage quiet fan control."""
         super().__init__(instance, ac_key)
         self._attr_unique_id += "-quiet"
+        # Last manual fan speed before Quiet. RAM-only; falls back to LOW after reload.
+        self._previous_fan_speed = None
 
     @property
     def is_on(self) -> bool | None:
@@ -196,12 +206,19 @@ class AirstageQuietFanSwitch(AirstageAcEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn quiet fan on."""
+        try:
+            current = self._ac.get_fan_speed()
+        except (TypeError, ValueError):
+            current = None
+        self._previous_fan_speed = _RESTORABLE_FAN_SPEEDS.get(current)
         await self._ac.set_fan_speed(constants.FanSpeed.QUIET)
         await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
 
     async def async_turn_off(self, **kwargs: Any) -> None:
-        """Turn quiet fan off."""
-        await self._ac.set_fan_speed(constants.FanSpeed.AUTO)
+        """Turn quiet fan off, restoring the last known manual fan speed."""
+        target = self._previous_fan_speed or constants.FanSpeed.LOW
+        await self._ac.set_fan_speed(target)
+        self._previous_fan_speed = None
         await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
 
 
