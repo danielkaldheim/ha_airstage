@@ -105,9 +105,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         for entry in self._async_current_entries():
             if entry.data.get(CONF_DEVICE_ID) == mac.replace(":", "").upper():
-                # Device is already configured, check if IP or use_https changed
+                # Device is already configured, check if the IP changed.
+                # DHCP discovery carries no HTTPS information, so the entry's
+                # existing setting is preserved as-is via the spread below.
                 old_ip = entry.data.get(CONF_IP_ADDRESS)
-                old_use_https = entry.data.get(CONF_USE_HTTPS)
 
                 if old_ip != ip:
                     _LOGGER.info(
@@ -119,7 +120,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     new_data = {
                         **entry.data,
                         CONF_IP_ADDRESS: ip,
-                        CONF_USE_HTTPS: use_https,
                     }
                     self.hass.config_entries.async_update_entry(
                         entry,
@@ -132,7 +132,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         user_data = {
             CONF_DEVICE_ID: device_id,
             CONF_IP_ADDRESS: ip,
-            CONF_USE_HTTPS: use_https,
+            # Discovery cannot tell whether the device speaks HTTPS; default to
+            # plain HTTP, matching IP_SCHEMA's default for the manual flow.
+            CONF_USE_HTTPS: False,
         }
 
         # Test to see if we can connect to the device
