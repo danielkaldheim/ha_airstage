@@ -10,13 +10,6 @@
   },
   "config": {
     "step": {
-      "init": {
-        "data": {
-          "conf_use_https": "Gebruik HTTPS om verbinding te maken met het apparaat"
-        }
-      }
-    },
-    "step": {
       "details": {
         "data": {
           "local": "Lokaal",
