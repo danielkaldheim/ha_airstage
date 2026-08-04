@@ -10,13 +10,6 @@
   },
   "config": {
     "step": {
-      "init": {
-        "data": {
-          "conf_use_https": "Use HTTPS to connect to device"
-        }
-      }
-    },
-    "step": {
       "details": {
         "data": {
           "local": "[%key:common::config_flow::data::local%]",
