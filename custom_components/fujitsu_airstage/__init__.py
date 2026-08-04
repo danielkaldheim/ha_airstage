@@ -18,9 +18,11 @@ from homeassistant.const import (
     Platform,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady, PlatformNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.update_coordinator import (
+    DataUpdateCoordinator,
+    UpdateFailed,
+)
 
 from .const import (
     AIRSTAGE_LOCAL_RETRY,
@@ -70,7 +72,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             try:
                 return await apiCloud.get_devices()
             except airstage_api.ApiError as err:
-                raise PlatformNotReady(
+                raise UpdateFailed(
                     f"Connection error while connecting to Fujitsu Cloud: {err}"
                 ) from err
 
@@ -117,7 +119,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 asyncio.TimeoutError,
                 aiohttp.ServerTimeoutError,
             ) as err:
-                raise ConfigEntryNotReady(
+                raise UpdateFailed(
                     f"Connection error while connecting to {device_ip}: {err}"
                 ) from err
 
