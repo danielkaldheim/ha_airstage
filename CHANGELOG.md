@@ -1,3 +1,10 @@
+## [1.8.4](https://github.com/danielkaldheim/ha_airstage/compare/v1.8.3...v1.8.4) (2026-08-07)
+
+
+### Bug Fixes
+
+* **vertical swing detection:** pinning minimum version of pyairstage to 3.2.2 to avoid broken 3.2.1 release ([b8167d5](https://github.com/danielkaldheim/ha_airstage/commit/b8167d52166001d39e21562b8ce4909f47057004))
+
 ## [1.8.3](https://github.com/danielkaldheim/ha_airstage/compare/v1.8.2...v1.8.3) (2026-08-04)
 
 
