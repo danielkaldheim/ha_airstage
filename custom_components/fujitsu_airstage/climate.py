@@ -31,7 +31,7 @@ from .const import (
     MINIMUM_HEAT,
     VERTICAL_SWING,
 )
-from .entity import AirstageAcEntity
+from .entity import READ_ERRORS, AirstageAcEntity
 from .models import AirstageData
 
 HA_STATE_TO_FUJITSU = {
@@ -169,7 +169,12 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     @property
     def target_temperature(self) -> float | None:
         """Return the current target temperature."""
-        target_temp = self._ac.get_target_temperature()
+        try:
+            target_temp = self._ac.get_target_temperature()
+        except READ_ERRORS as e:
+            _LOGGER.debug("Could not read target temperature", exc_info=e)
+            return self.current_temperature
+
         if (
             self.hvac_mode == HVACMode.FAN_ONLY
             or target_temp is None
@@ -181,12 +186,24 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     @property
     def min_temp(self) -> float | None:
         """Return the minimum temperature for the current mode."""
-        return self._ac.get_minimum_temperature() or constants.ACConstants.COOL_MIN_TEMP
+        try:
+            value = self._ac.get_minimum_temperature()
+        except READ_ERRORS as e:
+            _LOGGER.debug("Could not read minimum temperature", exc_info=e)
+            value = None
+
+        return value or constants.ACConstants.COOL_MIN_TEMP
 
     @property
     def max_temp(self) -> float | None:
         """Return the maximum temperature for the current mode."""
-        return self._ac.get_maximum_temperature() or constants.ACConstants.HEAT_MAX_TEMP
+        try:
+            value = self._ac.get_maximum_temperature()
+        except READ_ERRORS as e:
+            _LOGGER.debug("Could not read maximum temperature", exc_info=e)
+            value = None
+
+        return value or constants.ACConstants.HEAT_MAX_TEMP
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""
@@ -207,20 +224,38 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     @property
     def current_temperature(self) -> float | None:
         """Return the current temperature."""
-        return self._ac.get_display_temperature()
+        try:
+            return self._ac.get_display_temperature()
+        except READ_ERRORS as e:
+            _LOGGER.debug("Could not read display temperature", exc_info=e)
+            return None
 
     @property
     def hvac_mode(self) -> HVACMode | None:
         """Return the current HVAC modes."""
-        om = self._ac.get_operating_mode()
+        try:
+            om = self._ac.get_operating_mode()
+        except READ_ERRORS as e:
+            # Report "unknown" rather than a fabricated OFF: an automation
+            # asking "is it off?" must not be told yes because a poll came
+            # back partial while the unit is actually running.
+            _LOGGER.debug("Could not determine operating mode", exc_info=e)
+            return None
+
         if om:
-            return FUJITSU_TO_HA_STATE[om]
+            return FUJITSU_TO_HA_STATE.get(om, HVACMode.OFF)
         return HVACMode.OFF
 
     @property
     def fan_mode(self) -> str | None:
         """Return the current fan modes."""
-        return FUJITSU_FAN_TO_HA[self._ac.get_fan_speed()]
+        try:
+            fan = self._ac.get_fan_speed()
+        except READ_ERRORS as e:
+            _LOGGER.debug("Could not determine fan speed", exc_info=e)
+            return None
+
+        return FUJITSU_FAN_TO_HA.get(fan) if fan is not None else None
 
     @property
     def swing_mode(self) -> str | None:
@@ -236,8 +271,12 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
 
             if self._ac.get_vertical_direction() != None:
                 return fujitsu_swing_to_ha(self._ac.get_vertical_direction())
-        except TypeError as e:
-            # #89 attempting to add some resillience until we can harden pyairstage
+        except READ_ERRORS as e:
+            # #89 attempting to add some resillience until we can harden
+            # pyairstage. Widened from TypeError for #115 / #119: an
+            # unsupported total_positions raises AirstageACError, which is not
+            # a TypeError, so it escaped here into supported_features and took
+            # the whole climate entity down with it.
             _LOGGER.debug("Could not determine swing state", exc_info=e)
             return None
 
@@ -245,7 +284,12 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     def swing_modes(self) -> list[str] | None:
         """Return swing modes if supported."""
         if self.swing_mode:
-            total_positions = self._ac.get_num_vertical_swing_positions()
+            try:
+                total_positions = self._ac.get_num_vertical_swing_positions()
+            except READ_ERRORS as e:
+                _LOGGER.debug("Could not read swing positions", exc_info=e)
+                return None
+
             if total_positions == 8:
                 return SWING_MODES_8
             elif total_positions == 6:
@@ -253,17 +297,33 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
             elif total_positions == 4:
                 return SWING_MODES_4
             else:
-                raise ValueError(
-                    f"Unknown number of vertical swing positions ({total_positions}). Only 4, 6, and 8 are supported."
+                # Was `raise ValueError`. Raising from a property is what
+                # removes the entity; a unit that reports a position count we
+                # cannot map simply has no swing modes to offer.
+                _LOGGER.debug(
+                    "Unsupported number of vertical swing positions (%s); "
+                    "only 4, 6 and 8 are mapped",
+                    total_positions,
                 )
+                return None
         return None
+
+    @property
+    def _minimum_heat(self):
+        """Return the minimum-heat state, or None if it cannot be read."""
+        try:
+            return self._ac.get_minimum_heat()
+        except READ_ERRORS as e:
+            _LOGGER.debug("Could not determine minimum heat state", exc_info=e)
+            return None
 
     @property
     def preset_mode(self) -> str | None:
         """Return the current preset mode."""
 
-        if self._ac.get_minimum_heat() != None:
-            if self._ac.get_minimum_heat() == constants.BooleanDescriptors.ON:
+        minimum_heat = self._minimum_heat
+        if minimum_heat != None:
+            if minimum_heat == constants.BooleanDescriptors.ON:
                 return MINIMUM_HEAT
             else:
                 return PRESET_NONE
@@ -272,11 +332,7 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     @property
     def preset_modes(self) -> list[str] | None:
         """Return preset modes if supported."""
-        return (
-            [PRESET_NONE, MINIMUM_HEAT]
-            if self._ac.get_minimum_heat() is not None
-            else None
-        )
+        return [PRESET_NONE, MINIMUM_HEAT] if self._minimum_heat is not None else None
 
     async def async_update(self) -> None:
         """Retrieve latest state."""

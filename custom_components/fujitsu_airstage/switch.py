@@ -64,7 +64,10 @@ class AirstageEcoSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the eco mode status."""
-        return self._ac.get_economy_mode() == constants.BooleanDescriptors.ON
+        return (
+            self.read(lambda ac: ac.get_economy_mode())
+            == constants.BooleanDescriptors.ON
+        )
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn eco mode on."""
@@ -92,7 +95,10 @@ class AirstagePowerfulSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the powerful status."""
-        return self._ac.get_powerful_mode() == constants.BooleanDescriptors.ON
+        return (
+            self.read(lambda ac: ac.get_powerful_mode())
+            == constants.BooleanDescriptors.ON
+        )
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn powerful on."""
@@ -120,7 +126,10 @@ class AirstageOutdoorLowNoiseSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the outdoor unit low noise" status."""
-        return self._ac.get_outdoor_low_noise() == constants.BooleanDescriptors.ON
+        return (
+            self.read(lambda ac: ac.get_outdoor_low_noise())
+            == constants.BooleanDescriptors.ON
+        )
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn outdoor unit low noise" on."""
@@ -148,7 +157,10 @@ class AirstageEnergySaveFanSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the energy saving fan status."""
-        return self._ac.get_energy_save_fan() == constants.BooleanDescriptors.ON
+        return (
+            self.read(lambda ac: ac.get_energy_save_fan())
+            == constants.BooleanDescriptors.ON
+        )
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn energy saving fan on."""
@@ -176,7 +188,10 @@ class AirstageQuietFanSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the quiet fan status."""
-        return self._ac.get_fan_speed() == constants.FanSpeedDescriptors.QUIET
+        return (
+            self.read(lambda ac: ac.get_fan_speed())
+            == constants.FanSpeedDescriptors.QUIET
+        )
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn quiet fan on."""
@@ -203,7 +218,9 @@ class AirstageIndoorLedSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the energy saving fan status."""
-        return self._ac.get_indoor_led() == constants.BooleanDescriptors.ON
+        return (
+            self.read(lambda ac: ac.get_indoor_led()) == constants.BooleanDescriptors.ON
+        )
 
     @property
     def icon(self) -> str:
@@ -237,7 +254,10 @@ class AirstagePowerSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the power status."""
-        return self._ac.get_device_on_off_state() == constants.BooleanDescriptors.ON
+        return (
+            self.read(lambda ac: ac.get_device_on_off_state())
+            == constants.BooleanDescriptors.ON
+        )
 
     @property
     def icon(self) -> str:
@@ -272,7 +292,10 @@ class AirstageHumanDetectionAutoSaveSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the Human Detection Auto Save status."""
-        return self._ac.get_hmn_detection_auto_save() == constants.BooleanDescriptors.ON
+        return (
+            self.read(lambda ac: ac.get_hmn_detection_auto_save())
+            == constants.BooleanDescriptors.ON
+        )
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn Human Detection Auto Save on."""
