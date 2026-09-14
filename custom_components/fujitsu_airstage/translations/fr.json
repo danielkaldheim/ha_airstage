@@ -1,0 +1,51 @@
+{
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "conf_turn_on_before_set_temp": "Allumer l'appareil avant de définir la température"
+        }
+      }
+    }
+  },
+  "config": {
+    "step": {
+      "details": {
+        "data": {
+          "local": "Local",
+          "cloud": "Cloud",
+          "select_polling_desc": "DESC 1",
+          "username": "Nom d'utilisateur",
+          "password": "Mot de passe",
+          "country": "Pays",
+          "device_id": "ID de l'appareil",
+          "ip_address": "Adresse IP",
+          "conf_use_https": "Utiliser HTTPS pour se connecter à l'appareil"
+        }
+      },
+      "user": {
+        "data": {
+          "device_id": "ID de l'appareil",
+          "ip_address": "Adresse IP",
+          "conf_use_https": "Utiliser HTTPS pour se connecter à l'appareil",
+          "conf_turn_on_before_set_temp": "Allumer l'appareil avant de définir la température"
+        }
+      },
+      "reconfigure": {
+        "data": {
+          "ip_address": "Adresse IP",
+          "conf_use_https": "Utiliser HTTPS pour se connecter à l'appareil"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Échec de la connexion",
+      "invalid_auth": "Authentification invalide",
+      "unknown": "Erreur inattendue"
+    },
+    "abort": {
+      "already_configured": "L'appareil est déjà configuré",
+      "not_a_fujitsu_airstage": "L'appareil n'est pas un Fujitsu Airstage"
+    }
+  }
+}
