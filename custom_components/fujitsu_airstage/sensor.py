@@ -11,7 +11,12 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfTemperature
+from homeassistant.const import (
+    PERCENTAGE,
+    EntityCategory,
+    UnitOfEnergy,
+    UnitOfTemperature,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_platform
@@ -54,6 +59,8 @@ async def async_setup_entry(
                         "Outdoor",
                     )
                 )
+            if data["iu_pow_cons"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+                entities.append(AirstageEnergy(instance, ac_key))
 
     async_add_entities(entities)
 
@@ -90,3 +97,38 @@ class AirstageTemp(AirstageAcEntity, SensorEntity):
         if self.parameter is constants.ACParameter.OUTDOOR_TEMPERATURE:
             value = self._ac.get_outdoor_temperature()
             return Decimal(value) if value is not None else None
+
+
+class AirstageEnergy(AirstageAcEntity, SensorEntity):
+    """Representation of Airstage cumulative energy consumption sensor.
+
+    Exposes the raw `iu_pow_cons` parameter reported by the unit. Fujitsu
+    does not document this field, and the community (see issue #91) has not
+    conclusively confirmed the unit or whether it reflects the indoor unit
+    only or the whole system. It is currently assumed to be a lifetime,
+    ever-increasing value expressed in Wh, which is why it is exposed with
+    `state_class=TOTAL_INCREASING` so it can feed the HA Energy dashboard.
+    """
+
+    _attr_name = "Energy"
+    _attr_device_class = SensorDeviceClass.ENERGY
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    _attr_native_unit_of_measurement = UnitOfEnergy.WATT_HOUR
+
+    def __init__(self, instance: AirstageData, ac_key: str) -> None:
+        """Initialize an Airstage energy sensor."""
+        super().__init__(instance, ac_key)
+        self._attr_unique_id += "-energy"
+
+    @property
+    def native_value(self) -> Decimal | None:
+        """Return the cumulative power consumption reported by the unit."""
+        try:
+            value = self._ac.get_device_parameter(
+                constants.ACParameter.POWER_CONSUMPTION
+            )
+        except KeyError:
+            # Defensive: mirrors the "entity properties must not raise"
+            # approach adopted elsewhere in this integration.
+            return None
+        return Decimal(value) if value is not None else None
