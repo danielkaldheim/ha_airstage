@@ -11,6 +11,8 @@ from homeassistant.components.climate import (
     FAN_HIGH,
     FAN_LOW,
     FAN_MEDIUM,
+    PRESET_BOOST,
+    PRESET_ECO,
     PRESET_NONE,
     ClimateEntity,
     ClimateEntityFeature,
@@ -260,23 +262,47 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
 
     @property
     def preset_mode(self) -> str | None:
-        """Return the current preset mode."""
+        """Return the current preset mode.
 
-        if self._ac.get_minimum_heat() != None:
+        Eco and Powerful are exposed here in addition to their dedicated
+        switches (#6), since HA's preset_mode is a single mutually exclusive
+        selection. Turning on one of these via the preset turns the others
+        off; the switches remain available for independent toggling.
+        """
+        available = False
+
+        if self._ac.get_powerful_mode() is not None:
+            available = True
+            if self._ac.get_powerful_mode() == constants.BooleanDescriptors.ON:
+                return PRESET_BOOST
+
+        if self._ac.get_economy_mode() is not None:
+            available = True
+            if self._ac.get_economy_mode() == constants.BooleanDescriptors.ON:
+                return PRESET_ECO
+
+        if self._ac.get_minimum_heat() is not None:
+            available = True
             if self._ac.get_minimum_heat() == constants.BooleanDescriptors.ON:
                 return MINIMUM_HEAT
-            else:
-                return PRESET_NONE
-        return None
+
+        return PRESET_NONE if available else None
 
     @property
     def preset_modes(self) -> list[str] | None:
         """Return preset modes if supported."""
-        return (
-            [PRESET_NONE, MINIMUM_HEAT]
-            if self._ac.get_minimum_heat() is not None
-            else None
-        )
+        modes = []
+
+        if self._ac.get_powerful_mode() is not None:
+            modes.append(PRESET_BOOST)
+
+        if self._ac.get_economy_mode() is not None:
+            modes.append(PRESET_ECO)
+
+        if self._ac.get_minimum_heat() is not None:
+            modes.append(MINIMUM_HEAT)
+
+        return [PRESET_NONE, *modes] if modes else None
 
     async def async_update(self) -> None:
         """Retrieve latest state."""
@@ -316,10 +342,34 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
-        if preset_mode == MINIMUM_HEAT:
-            await self._ac.set_minimum_heat(constants.BooleanProperty.ON)
-        else:
-            await self._ac.set_minimum_heat(constants.BooleanProperty.OFF)
+        """Set the preset mode.
+
+        Selecting a preset turns its underlying capability on and the other
+        managed capabilities off, mirroring the mutually exclusive nature of
+        HA's preset_mode. Capabilities not supported by the device are left
+        untouched.
+        """
+        if self._ac.get_powerful_mode() is not None:
+            await self._ac.set_powerful_mode(
+                constants.BooleanProperty.ON
+                if preset_mode == PRESET_BOOST
+                else constants.BooleanProperty.OFF
+            )
+
+        if self._ac.get_economy_mode() is not None:
+            await self._ac.set_economy_mode(
+                constants.BooleanProperty.ON
+                if preset_mode == PRESET_ECO
+                else constants.BooleanProperty.OFF
+            )
+
+        if self._ac.get_minimum_heat() is not None:
+            await self._ac.set_minimum_heat(
+                constants.BooleanProperty.ON
+                if preset_mode == MINIMUM_HEAT
+                else constants.BooleanProperty.OFF
+            )
+
         await self.instance.coordinator.async_refresh()
 
     @property
