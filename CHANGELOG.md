@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.8.4...v1.9.0) (2026-09-14)
+
+
+### Features
+
+* **translations:** add French translation ([ffde8ae](https://github.com/danielkaldheim/ha_airstage/commit/ffde8ae6c763b91789efcd3390c9ab53884de829))
+
 ## [1.8.4](https://github.com/danielkaldheim/ha_airstage/compare/v1.8.3...v1.8.4) (2026-08-07)
 
 
