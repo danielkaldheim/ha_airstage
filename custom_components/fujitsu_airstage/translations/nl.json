@@ -45,7 +45,8 @@
     },
     "abort": {
       "already_configured": "Toestel is reeds ingesteld",
-      "not_a_fujitsu_airstage": "Dit apparaat is geen Fujitsu Airstage"
+      "not_a_fujitsu_airstage": "Dit apparaat is geen Fujitsu Airstage",
+      "not_configured": "Het apparaat is niet geconfigureerd voor lokale bediening"
     }
   }
 }

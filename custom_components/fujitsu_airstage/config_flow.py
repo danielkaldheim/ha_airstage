@@ -30,6 +30,7 @@ from .const import (
     CONF_USE_HTTPS,
     DOMAIN,
 )
+from .device import device_id_to_mac, normalize_device_id
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -94,69 +95,38 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Get the Airstage Fujitsu Options flow."""
         return OptionsFlow(config_entry)
 
+    async def _async_set_local_unique_id(self, device_id: str) -> None:
+        """Identify a local device, including entries created before unique IDs."""
+        mac = device_id_to_mac(device_id)
+        if await self.async_set_unique_id(mac):
+            return
+
+        for entry in self._async_current_entries():
+            configured_id = entry.data.get(CONF_DEVICE_ID)
+            if (
+                configured_id
+                and device_id_to_mac(configured_id) == mac
+                and entry.unique_id is None
+            ):
+                self.hass.config_entries.async_update_entry(entry, unique_id=mac)
+                return
+
     async def async_step_dhcp(
         self,
         discovery_info: DhcpServiceInfo,
     ) -> config_entries.ConfigFlowResult:
-        """Handle DHCP discovery flow."""
+        """Update the address of an already configured local device."""
         _LOGGER.debug("DHCP discovery: %s", discovery_info)
-        ip = discovery_info.ip
-        mac = discovery_info.macaddress
+        if device_id_to_mac(discovery_info.macaddress) is None:
+            return self.async_abort(reason="not_configured")
 
-        for entry in self._async_current_entries():
-            if entry.data.get(CONF_DEVICE_ID) == mac.replace(":", "").upper():
-                # Device is already configured, check if the IP changed.
-                # DHCP discovery carries no HTTPS information, so the entry's
-                # existing setting is preserved as-is via the spread below.
-                old_ip = entry.data.get(CONF_IP_ADDRESS)
-
-                if old_ip != ip:
-                    _LOGGER.info(
-                        "Updating IP for device %s from %s to %s",
-                        mac,
-                        old_ip,
-                        ip,
-                    )
-                    new_data = {
-                        **entry.data,
-                        CONF_IP_ADDRESS: ip,
-                    }
-                    self.hass.config_entries.async_update_entry(
-                        entry,
-                        data=new_data,
-                    )
-                return self.async_abort(reason="already_configured")
-
-        # If we get here, the device is not yet configured. Proceed with normal flow
-        device_id = mac.replace(":", "").upper()
-        user_data = {
-            CONF_DEVICE_ID: device_id,
-            CONF_IP_ADDRESS: ip,
-            # Discovery cannot tell whether the device speaks HTTPS; default to
-            # plain HTTP, matching IP_SCHEMA's default for the manual flow.
-            CONF_USE_HTTPS: False,
-        }
-
-        # Test to see if we can connect to the device
-        try:
-            hub = airstage_api.ApiLocal(
-                session=async_get_clientsession(self.hass),
-                retry=AIRSTAGE_LOCAL_RETRY,
-                device_id=user_data[CONF_DEVICE_ID],
-                ip_address=user_data[CONF_IP_ADDRESS],
-                use_https=user_data[CONF_USE_HTTPS],
-            )
-            if not await hub.get_parameters(["iu_model"]):
-                return self.async_abort(reason="not_a_fujitsu_airstage")
-        except Exception:  # pylint: disable=broad-except
-            _LOGGER.exception("Unexpected exception")
-            return self.async_abort(reason="not_a_fujitsu_airstage")
-
-        # If successful, create entry
-        return self.async_create_entry(
-            title=f"Local device {device_id}",
-            data=user_data,
+        await self._async_set_local_unique_id(discovery_info.macaddress)
+        # This helper preserves the remaining data and reloads the client when
+        # the IP changes, or when a rediscovered entry is waiting for setup retry.
+        self._abort_if_unique_id_configured(
+            updates={CONF_IP_ADDRESS: discovery_info.ip}
         )
+        return self.async_abort(reason="not_configured")
 
     async def async_step_details(
         self, user_input: dict[str, Any] | None = None
@@ -184,14 +154,16 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "address/netmask is invalid"
                 _LOGGER.warning(errors["base"], exc_info=e)
 
-            user_input[CONF_DEVICE_ID] = (
-                str(user_input[CONF_DEVICE_ID]).replace(":", "").upper()
+            user_input[CONF_DEVICE_ID] = normalize_device_id(
+                str(user_input[CONF_DEVICE_ID])
             )
 
-            if len(user_input[CONF_DEVICE_ID]) != 12:
+            if device_id_to_mac(user_input[CONF_DEVICE_ID]) is None:
                 errors["base"] = "invalid device id"
 
             if not errors:
+                await self._async_set_local_unique_id(user_input[CONF_DEVICE_ID])
+                self._abort_if_unique_id_configured()
                 # Attempt connection
                 try:
                     hub = airstage_api.ApiLocal(
@@ -280,14 +252,16 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 except Exception:
                     errors["base"] = "address/netmask is invalid"
 
-                user_input[CONF_DEVICE_ID] = (
-                    str(user_input[CONF_DEVICE_ID]).replace(":", "").upper()
+                user_input[CONF_DEVICE_ID] = normalize_device_id(
+                    str(user_input[CONF_DEVICE_ID])
                 )
 
-                if len(user_input[CONF_DEVICE_ID]) != 12:
+                if device_id_to_mac(user_input[CONF_DEVICE_ID]) is None:
                     errors["base"] = "invalid device id"
 
                 if not errors:
+                    await self._async_set_local_unique_id(user_input[CONF_DEVICE_ID])
+                    self._abort_if_unique_id_configured()
                     try:
                         # Attempt to connect
                         hub = airstage_api.ApiLocal(

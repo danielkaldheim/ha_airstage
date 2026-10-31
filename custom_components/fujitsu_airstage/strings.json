@@ -45,7 +45,8 @@
     },
     "abort": {
       "already_configured": "[%key:common::config_flow::abort::already_configured_device%]",
-      "not_a_fujitsu_airstage": "Device is not a Fujitsu Airstage"
+      "not_a_fujitsu_airstage": "Device is not a Fujitsu Airstage",
+      "not_configured": "Device is not configured for local control"
     }
   }
 }
