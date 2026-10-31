@@ -18,6 +18,7 @@ from homeassistant.const import (
     Platform,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
@@ -33,6 +34,7 @@ from .const import (
     CONF_USE_HTTPS,
     DOMAIN,
 )
+from .device import device_id_to_mac
 from .models import AirstageData
 
 _LOGGER = logging.getLogger(__name__)
@@ -93,6 +95,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device_id = entry.data[CONF_DEVICE_ID]
         device_ip = entry.data[CONF_IP_ADDRESS]
         use_https = entry.data.get(CONF_USE_HTTPS, False)
+
+        # Register identity before the first request: the saved IP may be stale.
+        if mac := device_id_to_mac(device_id):
+            if entry.unique_id is None and not (
+                hass.config_entries.async_entry_for_domain_unique_id(DOMAIN, mac)
+            ):
+                hass.config_entries.async_update_entry(entry, unique_id=mac)
+            dr.async_get(hass).async_get_or_create(
+                config_entry_id=entry.entry_id,
+                identifiers={(DOMAIN, device_id)},
+                connections={(dr.CONNECTION_NETWORK_MAC, mac)},
+                manufacturer="Fujitsu Airstage",
+            )
+
         apiLocal = airstage_api.ApiLocal(
             session=async_get_clientsession(hass),
             retry=AIRSTAGE_LOCAL_RETRY,

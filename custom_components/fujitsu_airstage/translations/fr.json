@@ -45,7 +45,8 @@
     },
     "abort": {
       "already_configured": "L'appareil est déjà configuré",
-      "not_a_fujitsu_airstage": "L'appareil n'est pas un Fujitsu Airstage"
+      "not_a_fujitsu_airstage": "L'appareil n'est pas un Fujitsu Airstage",
+      "not_configured": "L’appareil n’est pas configuré pour le contrôle local"
     }
   }
 }
