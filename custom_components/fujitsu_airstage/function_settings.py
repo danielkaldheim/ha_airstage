@@ -1,8 +1,9 @@
 """Descriptions of indoor unit function settings (installer settings).
 
 Source: Fujitsu service manual for ASEH..KMCG wall-mounted units, chapter
-"Function settings", plus function 43 from other Airstage manuals. Other
-Airstage indoor units use the same numbers for the same functions, but not
+"Function settings", plus functions 43 and 95 from other Airstage manuals
+(95: AUU..RLF service manual; setting it resets 30, 31, 92 and 93 to
+"No correction"). Other Airstage indoor units use the same numbers for the same functions, but not
 every unit supports every value.
 """
 
@@ -94,6 +95,13 @@ FUNCTION_SETTING_INFO: dict[int, FunctionSetting] = {
             9: "Error status",
             10: "Indoor unit fan operation status",
             11: "Setting prohibited",
+        },
+    ),
+    95: FunctionSetting(
+        "Heat insulation condition (building insulation)",
+        {
+            0: "Standard insulation",
+            1: "High insulation (less overshoot at start-up)",
         },
     ),
 }

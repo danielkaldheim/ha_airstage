@@ -55,7 +55,7 @@ MONITOR_PARAMETERS: tuple[str, ...] = (
 # Function settings documented for Airstage wall-mounted units (see
 # function_settings.py). Must stay below 20 names per request.
 FUNCTION_SETTINGS: tuple[int, ...] = (
-    0, 11, 30, 31, 35, 36, 40, 42, 43, 44, 46, 48, 49, 60
+    0, 11, 30, 31, 35, 36, 40, 42, 43, 44, 46, 48, 49, 60, 95
 )
 
 # Run-time counters (unit unconfirmed, probably hours); read with the
