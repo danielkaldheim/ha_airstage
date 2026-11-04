@@ -153,6 +153,22 @@ MONITOR_SENSORS: tuple[AirstageMonitorSensorDescription, ...] = (
         centi=True,
     ),
     AirstageMonitorSensorDescription(
+        key="ou_heat_ex_tmp_out",
+        name="Outdoor heat exchanger outlet temperature",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        centi=True,
+    ),
+    AirstageMonitorSensorDescription(
+        key="ou_fan_rot1",
+        name="Outdoor fan speed",
+        native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:fan",
+    ),
+    AirstageMonitorSensorDescription(
         key="ou_outdoor_tmp",
         name="Outdoor unit air temperature",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
@@ -185,6 +201,22 @@ MONITOR_SENSORS: tuple[AirstageMonitorSensorDescription, ...] = (
             entity_registry_enabled_default=n == 1,
         )
         for n in range(1, 6)
+    ),
+    # Run-time counters; unit not confirmed (probably hours), so no unit.
+    *(
+        AirstageMonitorSensorDescription(
+            key=key,
+            name=name,
+            state_class=SensorStateClass.TOTAL_INCREASING,
+            icon="mdi:timer-outline",
+            entity_registry_enabled_default=False,
+        )
+        for key, name in (
+            ("iu_eng_time", "Operating time counter"),
+            ("iu_cmp_time", "Compressor time counter"),
+            ("iu_fan1_time", "Indoor fan time counter"),
+            ("ou_fan1_time", "Outdoor fan time counter"),
+        )
     ),
 )
 

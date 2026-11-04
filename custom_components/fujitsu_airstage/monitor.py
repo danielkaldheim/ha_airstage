@@ -41,6 +41,8 @@ MONITOR_PARAMETERS: tuple[str, ...] = (
     "ou_current",
     "ou_four_way_vlv",
     "ou_heat_ex_tmp",
+    "ou_heat_ex_tmp_out",
+    "ou_fan_rot1",
     "ou_outdoor_tmp",
     "ou_disc_tmp",
     "ou_exp_vlv1",
@@ -54,6 +56,15 @@ MONITOR_PARAMETERS: tuple[str, ...] = (
 # function_settings.py). Must stay below 20 names per request.
 FUNCTION_SETTINGS: tuple[int, ...] = (
     0, 11, 30, 31, 35, 36, 40, 42, 43, 44, 46, 48, 49, 60
+)
+
+# Run-time counters (unit unconfirmed, probably hours); read with the
+# function settings because they change slowly.
+COUNTER_PARAMETERS: tuple[str, ...] = (
+    "iu_eng_time",
+    "iu_cmp_time",
+    "iu_fan1_time",
+    "ou_fan1_time",
 )
 
 # Function settings change rarely; read them every N coordinator updates.
@@ -128,6 +139,7 @@ class MonitorPoller:
             try:
                 values = await self._get(
                     [function_setting_name(n) for n in FUNCTION_SETTINGS]
+                    + list(COUNTER_PARAMETERS)
                 )
             except Exception as err:  # noqa: BLE001
                 _LOGGER.debug("Function settings not available: %s", err)
@@ -139,8 +151,11 @@ class MonitorPoller:
                     _LOGGER.debug(
                         "Function settings readable: %s", self.functions_supported
                     )
-                if values:
-                    self._functions = values
+                # Keep the last real value when the adapter answers "" (not
+                # fetched from the unit yet).
+                for name, value in values.items():
+                    if value != "" or name not in self._functions:
+                        self._functions[name] = value
 
         self._cycle += 1
         result.update(self._functions)

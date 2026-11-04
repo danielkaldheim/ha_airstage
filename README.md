@@ -56,6 +56,9 @@ appear as diagnostic sensors:
 | Indoor fan speed | `iu_fan_rot1` | rpm |
 | Outdoor heat exchanger / air / discharge temperature | `ou_heat_ex_tmp`, `ou_outdoor_tmp`, `ou_disc_tmp` | |
 | 4-way valve | `ou_four_way_vlv` | changes during defrost |
+| Outdoor heat exchanger outlet temperature | `ou_heat_ex_tmp_out` | |
+| Outdoor fan speed | `ou_fan_rot1` | rpm |
+| Operating / compressor / indoor fan / outdoor fan time counter | `iu_eng_time`, `iu_cmp_time`, `iu_fan1_time`, `ou_fan1_time` | unit unconfirmed (probably hours), disabled by default |
 | Expansion valve 1–5 | `ou_exp_vlv1`…`5` | steps; one per indoor unit on multi splits (2–5 disabled by default) |
 | Function setting NN <name> | `iu_fld_setNN` | installer settings 00, 11, 30, 31, 35, 36, 40, 42, 43, 44, 46, 48, 49, 60 (disabled by default, read every ~5 min). State shows code and meaning, e.g. `00 - Standard setting`; attribute `code` holds the bare number, `options` lists all values |
 
