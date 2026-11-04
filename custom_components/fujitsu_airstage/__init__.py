@@ -34,6 +34,7 @@ from .const import (
     DOMAIN,
 )
 from .models import AirstageData
+from .monitor import MonitorPoller, merge_into_devices
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -111,9 +112,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             },
         )
 
+        monitor = MonitorPoller(apiLocal)
+
         async def async_get():
             try:
-                return await apiLocal.get_devices()
+                devices = await apiLocal.get_devices()
+                merge_into_devices(devices, device_id, await monitor.async_fetch())
+                return devices
             except (
                 airstage_api.ApiError,
                 asyncio.TimeoutError,
