@@ -96,9 +96,12 @@ class AirstageMonitorSensorDescription(SensorEntityDescription):
 
     centi: bool = False
     # The adapter answers "" for outdoor values while the compressor is idle;
-    # for these sensors that means "not running", so report 0.
+    # for these sensors that means "not running", so report 0 (debounced).
     zero_when_empty: bool = False
 
+
+# Consecutive empty answers before compressor/current/fan are reported as 0.
+EMPTY_UPDATES_FOR_ZERO = 3
 
 MONITOR_SENSORS: tuple[AirstageMonitorSensorDescription, ...] = (
     AirstageMonitorSensorDescription(
@@ -249,18 +252,32 @@ class AirstageMonitorSensor(AirstageAcEntity, SensorEntity):
         super().__init__(instance, ac_key)
         self.entity_description = description
         self._attr_unique_id += f"-{description.key}"
+        self._last_value: float | int | None = None
+        self._empty_updates = 0
+        self._attr_native_value = self._compute_value()
 
-    @property
-    def native_value(self) -> float | int | None:
-        """Return the current value."""
+    def _compute_value(self) -> float | int | None:
         raw = _raw_value(
             self.coordinator.data, self.ac_key, self.entity_description.key
         )
         if raw == "" and self.entity_description.zero_when_empty:
-            return 0
-        if self.entity_description.centi:
-            return parse_centi(raw)
-        return parse_int(raw)
+            # The adapter also answers "" for a moment while its monitor cache
+            # refreshes, so only report 0 when it stays empty.
+            self._empty_updates += 1
+            if self._empty_updates >= EMPTY_UPDATES_FOR_ZERO:
+                self._last_value = 0
+            return self._last_value
+        self._empty_updates = 0
+        value = (
+            parse_centi(raw) if self.entity_description.centi else parse_int(raw)
+        )
+        self._last_value = value
+        return value
+
+    def _handle_coordinator_update(self) -> None:
+        """Update the value once per coordinator refresh."""
+        self._attr_native_value = self._compute_value()
+        super()._handle_coordinator_update()
 
 
 class AirstageFunctionSetting(AirstageAcEntity, SensorEntity):
