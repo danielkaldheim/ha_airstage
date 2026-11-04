@@ -50,6 +50,9 @@ MONITOR_PARAMETERS: tuple[str, ...] = (
     "ou_exp_vlv3",
     "ou_exp_vlv4",
     "ou_exp_vlv5",
+    # Capability flag ("1" = service monitor supported). Lets entities be
+    # created even when the adapter has no monitor values yet (just booted).
+    "iu_has_srv_mntr",
 )
 
 # Function settings documented for Airstage wall-mounted units (see
@@ -68,6 +71,7 @@ COUNTER_PARAMETERS: tuple[str, ...] = (
 )
 
 # Function settings change rarely; read them every N coordinator updates.
+# Also the interval for re-checking support that was not detected.
 FUNCTION_SETTING_EVERY = 30
 
 
@@ -118,24 +122,25 @@ class MonitorPoller:
         """Return extra parameter values. Never raises."""
         result: dict[str, str] = {}
 
-        if self.monitor_supported is not False:
+        # Unsupported is re-checked now and then: right after a power cycle
+        # the adapter may not answer the monitor names yet.
+        recheck = self._cycle % FUNCTION_SETTING_EVERY == 0
+        if self.monitor_supported is not False or recheck:
             try:
                 values = await self._get(list(MONITOR_PARAMETERS))
             except Exception as err:  # noqa: BLE001 - optional data, never fatal
                 # A timeout is not proof of missing support: retry next cycle.
                 _LOGGER.debug("Service monitor values not available: %s", err)
             else:
-                if self.monitor_supported is None:
-                    self.monitor_supported = bool(values)
+                supported = any(v not in ("", NOT_AVAILABLE) for v in values.values())
+                if supported or self.monitor_supported is None:
+                    self.monitor_supported = supported
                     _LOGGER.debug(
                         "Service monitor supported: %s", self.monitor_supported
                     )
                 result.update(values)
 
-        if self.functions_supported is not False and (
-            self.functions_supported is None
-            or self._cycle % FUNCTION_SETTING_EVERY == 0
-        ):
+        if self.functions_supported is None or recheck:
             try:
                 values = await self._get(
                     [function_setting_name(n) for n in FUNCTION_SETTINGS]
@@ -144,10 +149,9 @@ class MonitorPoller:
             except Exception as err:  # noqa: BLE001
                 _LOGGER.debug("Function settings not available: %s", err)
             else:
-                if self.functions_supported is None:
-                    self.functions_supported = any(
-                        v != NOT_AVAILABLE for v in values.values()
-                    )
+                supported = any(v not in ("", NOT_AVAILABLE) for v in values.values())
+                if supported or self.functions_supported is None:
+                    self.functions_supported = supported
                     _LOGGER.debug(
                         "Function settings readable: %s", self.functions_supported
                     )

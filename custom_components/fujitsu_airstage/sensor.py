@@ -67,9 +67,15 @@ async def async_setup_entry(
                     )
                 )
 
+            # The adapter reports support even before it has values (e.g.
+            # just after a power cycle), so create the sensors in that case too.
+            has_monitor = (
+                data.get("iu_has_srv_mntr", {}).get("value") == "1"
+            )
             for description in MONITOR_SENSORS:
-                if description.key in data and (
-                    data[description.key]["value"] != constants.CAPABILITY_NOT_AVAILABLE
+                value = data.get(description.key, {}).get("value")
+                if (has_monitor and value != constants.CAPABILITY_NOT_AVAILABLE) or (
+                    value not in (None, constants.CAPABILITY_NOT_AVAILABLE)
                 ):
                     entities.append(
                         AirstageMonitorSensor(instance, ac_key, description)
