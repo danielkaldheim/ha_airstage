@@ -89,6 +89,9 @@ class AirstageMonitorSensorDescription(SensorEntityDescription):
     """Describes a service monitor sensor."""
 
     centi: bool = False
+    # The adapter answers "" for outdoor values while the compressor is idle;
+    # for these sensors that means "not running", so report 0.
+    zero_when_empty: bool = False
 
 
 MONITOR_SENSORS: tuple[AirstageMonitorSensorDescription, ...] = (
@@ -133,6 +136,7 @@ MONITOR_SENSORS: tuple[AirstageMonitorSensorDescription, ...] = (
         device_class=SensorDeviceClass.FREQUENCY,
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:engine",
+        zero_when_empty=True,
     ),
     AirstageMonitorSensorDescription(
         key="ou_current",
@@ -142,6 +146,7 @@ MONITOR_SENSORS: tuple[AirstageMonitorSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=2,
         centi=True,
+        zero_when_empty=True,
     ),
     AirstageMonitorSensorDescription(
         key="ou_heat_ex_tmp",
@@ -167,6 +172,7 @@ MONITOR_SENSORS: tuple[AirstageMonitorSensorDescription, ...] = (
         native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:fan",
+        zero_when_empty=True,
     ),
     AirstageMonitorSensorDescription(
         key="ou_outdoor_tmp",
@@ -244,6 +250,8 @@ class AirstageMonitorSensor(AirstageAcEntity, SensorEntity):
         raw = _raw_value(
             self.coordinator.data, self.ac_key, self.entity_description.key
         )
+        if raw == "" and self.entity_description.zero_when_empty:
+            return 0
         if self.entity_description.centi:
             return parse_centi(raw)
         return parse_int(raw)
