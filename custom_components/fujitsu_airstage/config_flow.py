@@ -25,7 +25,6 @@ from .const import (
     AIRSTAGE_LOCAL_RETRY,
     AIRSTAGE_RETRY,
     CONF_LOCAL,
-    CONF_SELECT_POLLING,
     CONF_TURN_ON_BEFORE_SET_TEMP,
     CONF_USE_HTTPS,
     DOMAIN,
@@ -180,7 +179,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except ValueError as e:
                 errors["base"] = "address/netmask is invalid"
                 _LOGGER.warning(errors["base"], exc_info=e)
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 errors["base"] = "address/netmask is invalid"
                 _LOGGER.warning(errors["base"], exc_info=e)
 
@@ -271,63 +270,66 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Set up a new device."""
         errors: dict[str, str] = {}
 
-        if user_input is not None:
-            if CONF_DEVICE_ID in user_input or CONF_IP_ADDRESS in user_input:
+        if (
+            user_input is not None
+            and CONF_DEVICE_ID in user_input
+            or CONF_IP_ADDRESS in user_input
+        ):
+            try:
+                ip_address(user_input[CONF_IP_ADDRESS])
+            except ValueError:
+                errors["base"] = "address/netmask is invalid"
+            except Exception:
+                errors["base"] = "address/netmask is invalid"
+
+            user_input[CONF_DEVICE_ID] = (
+                str(user_input[CONF_DEVICE_ID]).replace(":", "").upper()
+            )
+
+            if len(user_input[CONF_DEVICE_ID]) != 12:
+                errors["base"] = "invalid device id"
+
+            if not errors:
                 try:
-                    ip_address(user_input[CONF_IP_ADDRESS])
-                except ValueError:
-                    errors["base"] = "address/netmask is invalid"
-                except Exception:
-                    errors["base"] = "address/netmask is invalid"
+                    # Attempt to connect
+                    hub = airstage_api.ApiLocal(
+                        session=async_get_clientsession(self.hass),
+                        retry=AIRSTAGE_LOCAL_RETRY,
+                        device_id=user_input[CONF_DEVICE_ID],
+                        ip_address=user_input[CONF_IP_ADDRESS],
+                        use_https=user_input[CONF_USE_HTTPS],
+                    )
 
-                user_input[CONF_DEVICE_ID] = (
-                    str(user_input[CONF_DEVICE_ID]).replace(":", "").upper()
-                )
-
-                if len(user_input[CONF_DEVICE_ID]) != 12:
-                    errors["base"] = "invalid device id"
-
-                if not errors:
-                    try:
-                        # Attempt to connect
-                        hub = airstage_api.ApiLocal(
-                            session=async_get_clientsession(self.hass),
-                            retry=AIRSTAGE_LOCAL_RETRY,
-                            device_id=user_input[CONF_DEVICE_ID],
-                            ip_address=user_input[CONF_IP_ADDRESS],
-                            use_https=user_input[CONF_USE_HTTPS],
+                    if not await hub.get_parameters(["iu_model"]):
+                        raise InvalidAuth
+                except airstage_api.ApiError as e:
+                    errors["base"] = "cannot_connect"
+                    _LOGGER.debug(errors["base"], exc_info=e)
+                except CannotConnect as e:
+                    errors["base"] = "cannot_connect"
+                    _LOGGER.debug(errors["base"], exc_info=e)
+                except InvalidAuth as e:
+                    errors["base"] = "invalid_auth"
+                    _LOGGER.debug(errors["base"], exc_info=e)
+                except Exception:  # pylint: disable=broad-except
+                    _LOGGER.exception("Unexpected exception")
+                    errors["base"] = "unknown"
+                else:
+                    data_input = {
+                        k: v
+                        for k, v in user_input.items()
+                        if k != CONF_TURN_ON_BEFORE_SET_TEMP
+                    }
+                    user_options = {
+                        CONF_TURN_ON_BEFORE_SET_TEMP: user_input.get(
+                            CONF_TURN_ON_BEFORE_SET_TEMP
                         )
-
-                        if not await hub.get_parameters(["iu_model"]):
-                            raise InvalidAuth
-                    except airstage_api.ApiError as e:
-                        errors["base"] = "cannot_connect"
-                        _LOGGER.debug(errors["base"], exc_info=e)
-                    except CannotConnect as e:
-                        errors["base"] = "cannot_connect"
-                        _LOGGER.debug(errors["base"], exc_info=e)
-                    except InvalidAuth as e:
-                        errors["base"] = "invalid_auth"
-                        _LOGGER.debug(errors["base"], exc_info=e)
-                    except Exception:  # pylint: disable=broad-except
-                        _LOGGER.exception("Unexpected exception")
-                        errors["base"] = "unknown"
-                    else:
-                        data_input = {
-                            k: v
-                            for k, v in user_input.items()
-                            if k != CONF_TURN_ON_BEFORE_SET_TEMP
-                        }
-                        user_options = {
-                            CONF_TURN_ON_BEFORE_SET_TEMP: user_input.get(
-                                CONF_TURN_ON_BEFORE_SET_TEMP
-                            )
-                        }
-                        return self.async_create_entry(
-                            title=f"{CONF_LOCAL} - {user_input[CONF_DEVICE_ID]}",
-                            data=data_input,
-                            options=user_options,
-                        )
+                    }
+                    return self.async_create_entry(
+                        title=f"{CONF_LOCAL} - {user_input[CONF_DEVICE_ID]}",
+                        data=data_input,
+                        options=user_options,
+                    )
 
         return self.async_show_form(
             step_id="user",
@@ -339,8 +341,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            # Validate IP if user changed it
-            current_ip = self._get_reconfigure_entry().data[CONF_IP_ADDRESS]
             new_ip = user_input[CONF_IP_ADDRESS]
 
             try:
