@@ -65,3 +65,9 @@ appear as diagnostic sensors:
 Temperatures are reported in 1/100 °C, `65535` means the unit does not provide
 the value. Adapters that do not answer these parameters are detected on the
 first update and not polled again.
+
+After a power cycle the adapter has no clock and stops refreshing the service
+monitor: intake and coil read a fixed 20.00 °C and the outdoor values stay
+empty. The integration detects this, hides those values and sends the
+adapter the current time (`/SetTime`, as the Airstage app does), after which
+the values come back within a few minutes.

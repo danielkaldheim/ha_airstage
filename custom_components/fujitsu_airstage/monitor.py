@@ -12,6 +12,10 @@ Observations from a live ASEH14KJCAL on an AOEH30KBTA4 multi split:
 * temperatures are reported in 1/100 degC (``2475`` = 24.75 degC);
 * ``"65535"`` means the indoor unit does not provide the value;
 * ``""`` means no value right now (outdoor values while the compressor is off);
+* after a power cycle the adapter has no clock and does not refresh the
+  service monitor (intake and coil read a fixed 20.00 degC, outdoor values
+  stay empty) until it receives the time with ``SetTime``, as the Airstage
+  app does when it connects;
 * names the adapter does not know are left out of the response, and a request
   in which *no* name is known fails with error ``0013``.
 """
@@ -19,7 +23,9 @@ Observations from a live ASEH14KJCAL on an AOEH30KBTA4 multi split:
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
+import time
 from dataclasses import dataclass, field
 
 import pyairstage.airstageApi as airstage_api
@@ -55,6 +61,9 @@ MONITOR_PARAMETERS: tuple[str, ...] = (
     "iu_has_srv_mntr",
 )
 
+# Monitor names that carry measurements (everything except the flag).
+MONITOR_VALUE_NAMES = frozenset(MONITOR_PARAMETERS) - {"iu_has_srv_mntr"}
+
 # Function settings documented for Airstage wall-mounted units (see
 # function_settings.py). Must stay below 20 names per request.
 FUNCTION_SETTINGS: tuple[int, ...] = (
@@ -69,6 +78,18 @@ COUNTER_PARAMETERS: tuple[str, ...] = (
     "iu_fan1_time",
     "ou_fan1_time",
 )
+
+# Values the adapter reports before it has read the service monitor.
+PLACEHOLDER = {"iu_suct_tmp": "2000", "iu_heat_ex_tmp": "2000", "ou_cmp_freq": ""}
+
+# Minimum time between two SetTime requests sent to wake up the monitor.
+SET_TIME_INTERVAL = 600
+
+
+def is_placeholder(values: dict[str, str]) -> bool:
+    """Return True when the monitor values are the adapter's start-up values."""
+    return all(values.get(k) == v for k, v in PLACEHOLDER.items())
+
 
 # Function settings change rarely; read them every N coordinator updates.
 # Also the interval for re-checking support that was not detected.
@@ -110,6 +131,29 @@ class MonitorPoller:
     functions_supported: bool | None = None
     _cycle: int = 0
     _functions: dict[str, str] = field(default_factory=dict)
+    _last_set_time: float | None = None
+
+    async def async_set_time(self) -> None:
+        """Send the current time to the adapter (starts its monitor polling)."""
+        self._last_set_time = time.monotonic()
+        payload = {
+            "device_id": self.api.device_id,
+            "device_sub_id": 0,
+            "req_id": "",
+            "modified_by": "",
+            "unix_time": int(time.time()),
+        }
+        try:
+            await asyncio.sleep(1)
+            response = await self.api.async_call_api(
+                "POST",
+                f"{self.api.protocol}://{self.api.ip_address}/SetTime",
+                json=json.dumps(payload),
+            )
+        except Exception as err:  # noqa: BLE001 - best effort
+            _LOGGER.debug("SetTime failed: %s", err)
+        else:
+            _LOGGER.debug("SetTime response: %s", response)
 
     async def _get(self, names: list[str]) -> dict[str, str]:
         # Back-to-back requests make the adapter drop the connection, see
@@ -132,6 +176,23 @@ class MonitorPoller:
                 # A timeout is not proof of missing support: retry next cycle.
                 _LOGGER.debug("Service monitor values not available: %s", err)
             else:
+                if is_placeholder(values):
+                    # Adapter lost its clock (power cycle): report nothing
+                    # instead of the fixed 20.00 degC and give it the time.
+                    values = {
+                        k: ("" if k in MONITOR_VALUE_NAMES else v)
+                        for k, v in values.items()
+                    }
+                    if (
+                        self._last_set_time is None
+                        or time.monotonic() - self._last_set_time
+                        >= SET_TIME_INTERVAL
+                    ):
+                        _LOGGER.info(
+                            "Airstage adapter is not reading the service monitor "
+                            "(power cycle?), sending the current time"
+                        )
+                        await self.async_set_time()
                 supported = any(v not in ("", NOT_AVAILABLE) for v in values.values())
                 if supported or self.monitor_supported is None:
                     self.monitor_supported = supported
