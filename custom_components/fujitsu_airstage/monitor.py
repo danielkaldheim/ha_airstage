@@ -50,8 +50,11 @@ MONITOR_PARAMETERS: tuple[str, ...] = (
     "ou_exp_vlv5",
 )
 
-# Function settings documented for Airstage wall-mounted units.
-FUNCTION_SETTINGS: tuple[int, ...] = (11, 30, 31, 35, 36, 40, 42, 44, 46, 48, 49, 60)
+# Function settings documented for Airstage wall-mounted units (see
+# function_settings.py). Must stay below 20 names per request.
+FUNCTION_SETTINGS: tuple[int, ...] = (
+    0, 11, 30, 31, 35, 36, 40, 42, 43, 44, 46, 48, 49, 60
+)
 
 # Function settings change rarely; read them every N coordinator updates.
 FUNCTION_SETTING_EVERY = 30

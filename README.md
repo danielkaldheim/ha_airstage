@@ -57,7 +57,7 @@ appear as diagnostic sensors:
 | Outdoor heat exchanger / air / discharge temperature | `ou_heat_ex_tmp`, `ou_outdoor_tmp`, `ou_disc_tmp` | |
 | 4-way valve | `ou_four_way_vlv` | changes during defrost |
 | Expansion valve 1–5 | `ou_exp_vlv1`…`5` | steps; one per indoor unit on multi splits (2–5 disabled by default) |
-| Function setting NN | `iu_fld_setNN` | installer settings 11, 30, 31, 35, 36, 40, 42, 44, 46, 48, 49, 60 (disabled by default, read every ~5 min) |
+| Function setting NN <name> | `iu_fld_setNN` | installer settings 00, 11, 30, 31, 35, 36, 40, 42, 43, 44, 46, 48, 49, 60 (disabled by default, read every ~5 min). State shows code and meaning, e.g. `00 - Standard setting`; attribute `code` holds the bare number, `options` lists all values |
 
 Temperatures are reported in 1/100 °C, `65535` means the unit does not provide
 the value. Adapters that do not answer these parameters are detected on the

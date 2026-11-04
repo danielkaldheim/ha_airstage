@@ -32,6 +32,7 @@ from pyairstage import constants
 from .const import DOMAIN as AIRSTAGE_DOMAIN
 from .entity import AirstageAcEntity
 from .models import AirstageData
+from .function_settings import FUNCTION_SETTING_INFO, describe_value
 from .monitor import FUNCTION_SETTINGS, function_setting_name, parse_centi, parse_int
 
 
@@ -217,7 +218,11 @@ class AirstageMonitorSensor(AirstageAcEntity, SensorEntity):
 
 
 class AirstageFunctionSetting(AirstageAcEntity, SensorEntity):
-    """Function setting (installer setting) read from the indoor unit."""
+    """Function setting (installer setting) read from the indoor unit.
+
+    The state shows the code and its meaning ("06 - -2.5 °C ..."); the bare
+    code is also available as the ``code`` attribute for automations.
+    """
 
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_entity_registry_enabled_default = False
@@ -226,14 +231,35 @@ class AirstageFunctionSetting(AirstageAcEntity, SensorEntity):
     def __init__(self, instance: AirstageData, ac_key: str, number: int) -> None:
         """Initialize a function setting sensor."""
         super().__init__(instance, ac_key)
+        self._number = number
         self._key = function_setting_name(number)
-        self._attr_name = f"Function setting {number:02d}"
+        info = FUNCTION_SETTING_INFO.get(number)
+        self._attr_name = f"Function setting {number:02d}" + (
+            f" {info.name}" if info else ""
+        )
         self._attr_unique_id += f"-{self._key}"
 
     @property
-    def native_value(self) -> int | None:
-        """Return the setting value."""
+    def _code(self) -> int | None:
         return parse_int(_raw_value(self.coordinator.data, self.ac_key, self._key))
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the setting code with its meaning."""
+        return describe_value(self._number, self._code)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return the bare code and the possible values."""
+        attributes: dict[str, Any] = {
+            "function_number": self._number,
+            "code": self._code,
+        }
+        if info := FUNCTION_SETTING_INFO.get(self._number):
+            attributes["options"] = {
+                f"{code:02d}": meaning for code, meaning in info.values.items()
+            }
+        return attributes
 
 
 def _raw_value(devices: dict | None, ac_key: str, name: str) -> str | None:
