@@ -1,6 +1,5 @@
 """Switch platform for Airstage integration."""
 
-import logging
 from typing import Any
 
 from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
@@ -28,22 +27,19 @@ async def async_setup_entry(
         for ac_key in devices:
             entities.append(AirstagePowerSwitch(instance, ac_key))
             data = {x["name"]: x for x in devices[ac_key]["parameters"]}
-            if data["iu_economy"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+            if "iu_economy" in data:
                 entities.append(AirstageEcoSwitch(instance, ac_key))
-            if data["iu_powerful"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+            if "iu_powerful" in data:
                 entities.append(AirstagePowerfulSwitch(instance, ac_key))
-            if data["ou_low_noise"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+            if "ou_low_noise" in data:
                 entities.append(AirstageOutdoorLowNoiseSwitch(instance, ac_key))
-            if data["iu_fan_ctrl"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+            if "iu_fan_ctrl" in data:
                 entities.append(AirstageEnergySaveFanSwitch(instance, ac_key))
-            if data["iu_fan_spd"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+            if "iu_fan_ctrl" in data:
                 entities.append(AirstageQuietFanSwitch(instance, ac_key))
-            if data["iu_wifi_led"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+            if "iu_fan_ctrl" in data:
                 entities.append(AirstageIndoorLedSwitch(instance, ac_key))
-            if (
-                data["iu_hmn_det_auto_save"]["value"]
-                != constants.CAPABILITY_NOT_AVAILABLE
-            ):
+            if "iu_hmn_det_auto_save" in data:
                 entities.append(AirstageHumanDetectionAutoSaveSwitch(instance, ac_key))
 
     async_add_entities(entities)
@@ -64,17 +60,21 @@ class AirstageEcoSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the eco mode status."""
-        return self._ac.get_economy_mode() == constants.BooleanDescriptors.ON
+        return self._ac.get_economy_mode()
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn eco mode on."""
-        await self._ac.set_economy_mode(constants.BooleanProperty.ON)
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await self._ac.set_economy_mode(True)
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn eco mode off."""
-        await self._ac.set_economy_mode(constants.BooleanProperty.OFF)
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await self._ac.set_economy_mode(False)
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
 
 class AirstagePowerfulSwitch(AirstageAcEntity, SwitchEntity):
@@ -92,17 +92,21 @@ class AirstagePowerfulSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the powerful status."""
-        return self._ac.get_powerful_mode() == constants.BooleanDescriptors.ON
+        return self._ac.get_powerful_mode()
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn powerful on."""
-        await self._ac.set_powerful_mode(constants.BooleanProperty.ON)
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await self._ac.set_powerful_mode(True)
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn powerful off."""
-        await self._ac.set_powerful_mode(constants.BooleanProperty.OFF)
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await self._ac.set_powerful_mode(False)
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
 
 class AirstageOutdoorLowNoiseSwitch(AirstageAcEntity, SwitchEntity):
@@ -120,17 +124,21 @@ class AirstageOutdoorLowNoiseSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the outdoor unit low noise" status."""
-        return self._ac.get_outdoor_low_noise() == constants.BooleanDescriptors.ON
+        return self._ac.get_outdoor_low_noise()
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn outdoor unit low noise" on."""
-        await self._ac.set_outdoor_low_noise(constants.BooleanProperty.ON)
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await self._ac.set_outdoor_low_noise(True)
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn outdoor unit low noise" off."""
-        await self._ac.set_outdoor_low_noise(constants.BooleanProperty.OFF)
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await self._ac.set_outdoor_low_noise(False)
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
 
 class AirstageEnergySaveFanSwitch(AirstageAcEntity, SwitchEntity):
@@ -148,17 +156,21 @@ class AirstageEnergySaveFanSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the energy saving fan status."""
-        return self._ac.get_energy_save_fan() == constants.BooleanDescriptors.ON
+        return self._ac.get_energy_save_fan()
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn energy saving fan on."""
-        await self._ac.set_energy_save_fan(constants.BooleanProperty.ON)
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await self._ac.set_energy_save_fan(True)
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn energy saving fan off."""
-        await self._ac.set_energy_save_fan(constants.BooleanProperty.OFF)
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await self._ac.set_energy_save_fan(False)
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
 
 class AirstageQuietFanSwitch(AirstageAcEntity, SwitchEntity):
@@ -181,12 +193,16 @@ class AirstageQuietFanSwitch(AirstageAcEntity, SwitchEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn quiet fan on."""
         await self._ac.set_fan_speed(constants.FanSpeed.QUIET)
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn quiet fan off."""
         await self._ac.set_fan_speed(constants.FanSpeed.AUTO)
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
 
 class AirstageIndoorLedSwitch(AirstageAcEntity, SwitchEntity):
@@ -203,7 +219,7 @@ class AirstageIndoorLedSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the energy saving fan status."""
-        return self._ac.get_indoor_led() == constants.BooleanDescriptors.ON
+        return self._ac.get_indoor_led()
 
     @property
     def icon(self) -> str:
@@ -214,13 +230,17 @@ class AirstageIndoorLedSwitch(AirstageAcEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn energy saving fan on."""
-        await self._ac.set_indoor_led(constants.BooleanProperty.ON)
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await self._ac.set_indoor_led(True)
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn energy saving fan off."""
-        await self._ac.set_indoor_led(constants.BooleanProperty.OFF)
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await self._ac.set_indoor_led(False)
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
 
 class AirstagePowerSwitch(AirstageAcEntity, SwitchEntity):
@@ -237,7 +257,7 @@ class AirstagePowerSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the power status."""
-        return self._ac.get_device_on_off_state() == constants.BooleanDescriptors.ON
+        return self._ac.get_device_on_off_state()
 
     @property
     def icon(self) -> str:
@@ -249,12 +269,16 @@ class AirstagePowerSwitch(AirstageAcEntity, SwitchEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn power on."""
         await self._ac.turn_on()
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn power off."""
         await self._ac.turn_off()
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
 
 class AirstageHumanDetectionAutoSaveSwitch(AirstageAcEntity, SwitchEntity):
@@ -272,14 +296,14 @@ class AirstageHumanDetectionAutoSaveSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the Human Detection Auto Save status."""
-        return self._ac.get_hmn_detection_auto_save() == constants.BooleanDescriptors.ON
+        return self._ac.get_hmn_detection_auto_save()
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn Human Detection Auto Save on."""
-        await self._ac.set_hmn_detection_auto_save(constants.BooleanProperty.ON)
+        await self._ac.set_hmn_detection_auto_save(True)
         await self.instance.coordinator.async_refresh()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn Human Detection Auto Save off."""
-        await self._ac.set_hmn_detection_auto_save(constants.BooleanProperty.OFF)
+        await self._ac.set_hmn_detection_auto_save(False)
         await self.instance.coordinator.async_refresh()

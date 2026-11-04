@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import enum
 import logging
 from typing import Any
 
@@ -22,15 +23,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from pyairstage import constants
 
-from .const import (
-    CONF_TURN_ON_BEFORE_SET_TEMP,
-)
+from .const import CONF_TURN_ON_BEFORE_SET_TEMP
 from .const import DOMAIN as AIRSTAGE_DOMAIN
-from .const import (
-    FAN_QUIET,
-    MINIMUM_HEAT,
-    VERTICAL_SWING,
-)
+from .const import FAN_QUIET, MINIMUM_HEAT, VERTICAL_SWING
 from .entity import AirstageAcEntity
 from .models import AirstageData
 
@@ -50,7 +45,7 @@ FUJITSU_TO_HA_STATE = {
     constants.OperationModeDescriptors.HEAT: HVACMode.HEAT,
     constants.OperationModeDescriptors.AUTO: HVACMode.AUTO,
     constants.OperationModeDescriptors.OFF: HVACMode.OFF,
-    constants.CAPABILITY_NOT_AVAILABLE: None,
+    None: None,
 }
 
 FUJITSU_FAN_TO_HA = {
@@ -61,7 +56,7 @@ FUJITSU_FAN_TO_HA = {
     constants.FanSpeedDescriptors.MEDIUM_HIGH: "medium-high",
     constants.FanSpeedDescriptors.HIGH: FAN_HIGH,
     constants.FanSpeedDescriptors.AUTO: FAN_AUTO,
-    constants.CAPABILITY_NOT_AVAILABLE: None,
+    None: None,
 }
 
 HA_FAN_TO_FUJITSU = {
@@ -73,43 +68,68 @@ HA_FAN_TO_FUJITSU = {
 }
 
 
-def ha_swing_to_fujitsu(ha_swing: str) -> constants.VerticalSwingPositions:
-    return constants.VerticalSwingPositions(ha_swing)
+def ha_swing_to_fujitsu(ha_swing: str, total_positions: int) -> int | None:
+    if total_positions == 4:
+        return SWING_MODES_4.index(ha_swing)
+    if total_positions == 6:
+        return SWING_MODES_6.index(ha_swing)
+    if total_positions == 8:
+        return SWING_MODES_8.index(ha_swing)
+    return None
 
 
-def fujitsu_swing_to_ha(fujitsu_swing: constants.VerticalSwingPositions) -> str:
+def fujitsu_swing_to_ha(fujitsu_swing: int, total_positions: int) -> str:
+    if total_positions == 4:
+        return SWING_MODES_4[fujitsu_swing]
+    if total_positions == 6:
+        return SWING_MODES_6[fujitsu_swing]
+    if total_positions == 8:
+        return SWING_MODES_8[fujitsu_swing]
     return str(fujitsu_swing)
+
+
+class VerticalSwingPositions(enum.StrEnum):
+    # Note: These strings correspond to HA swing positions
+    HIGHEST = "Highest"
+    HIGHER = "Higher"
+    HIGH = "High"
+    CENTER_HIGH = "Center High"
+    CENTER_LOW = "Center Low"
+    LOW = "Low"
+    LOWER = "Lower"
+    LOWEST = "Lowest"
 
 
 SWING_MODES_4 = [
     VERTICAL_SWING,
-    constants.VerticalSwingPositions.HIGHEST,
-    constants.VerticalSwingPositions.HIGH,
-    constants.VerticalSwingPositions.LOW,
-    constants.VerticalSwingPositions.LOWEST,
+    VerticalSwingPositions.HIGHEST,
+    VerticalSwingPositions.HIGH,
+    VerticalSwingPositions.LOW,
+    VerticalSwingPositions.LOWEST,
 ]
 
 SWING_MODES_6 = [
     VERTICAL_SWING,
-    constants.VerticalSwingPositions.HIGHEST,
-    constants.VerticalSwingPositions.HIGH,
-    constants.VerticalSwingPositions.CENTER_HIGH,
-    constants.VerticalSwingPositions.CENTER_LOW,
-    constants.VerticalSwingPositions.LOW,
-    constants.VerticalSwingPositions.LOWEST,
+    VerticalSwingPositions.HIGHEST,
+    VerticalSwingPositions.HIGH,
+    VerticalSwingPositions.CENTER_HIGH,
+    VerticalSwingPositions.CENTER_LOW,
+    VerticalSwingPositions.LOW,
+    VerticalSwingPositions.LOWEST,
 ]
 
 SWING_MODES_8 = [
     VERTICAL_SWING,
-    constants.VerticalSwingPositions.HIGHEST,
-    constants.VerticalSwingPositions.HIGHER,
-    constants.VerticalSwingPositions.HIGH,
-    constants.VerticalSwingPositions.CENTER_HIGH,
-    constants.VerticalSwingPositions.CENTER_LOW,
-    constants.VerticalSwingPositions.LOW,
-    constants.VerticalSwingPositions.LOWER,
-    constants.VerticalSwingPositions.LOWEST,
+    VerticalSwingPositions.HIGHEST,
+    VerticalSwingPositions.HIGHER,
+    VerticalSwingPositions.HIGH,
+    VerticalSwingPositions.CENTER_HIGH,
+    VerticalSwingPositions.CENTER_LOW,
+    VerticalSwingPositions.LOW,
+    VerticalSwingPositions.LOWER,
+    VerticalSwingPositions.LOWEST,
 ]
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -198,11 +218,15 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         if new_hvac_mode is not None and new_hvac_mode != self.hvac_mode:
             # TODO: come up with multi-set option through pyairstage
             await self._ac.set_operation_mode(HA_STATE_TO_FUJITSU[new_hvac_mode])
-            await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+            await (
+                self.instance.coordinator.async_refresh()
+            )  # TODO: see if we can update entity
 
         if self.hvac_mode != HVACMode.FAN_ONLY:
             await self._ac.set_target_temperature(kwargs.get(ATTR_TEMPERATURE))
-            await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+            await (
+                self.instance.coordinator.async_refresh()
+            )  # TODO: see if we can update entity
 
     @property
     def current_temperature(self) -> float | None:
@@ -229,23 +253,20 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         Requires ClimateEntityFeature.SWING_MODE.
         """
 
-        try:
-            if self._ac.get_vertical_swing() != None:
-                if self._ac.get_vertical_swing() == constants.BooleanDescriptors.ON:
-                    return VERTICAL_SWING
+        if self._ac.get_vertical_swing() is not None and self._ac.get_vertical_swing():
+            return VERTICAL_SWING
 
-            if self._ac.get_vertical_direction() != None:
-                return fujitsu_swing_to_ha(self._ac.get_vertical_direction())
-        except TypeError as e:
-            # #89 attempting to add some resillience until we can harden pyairstage
-            _LOGGER.debug("Could not determine swing state", exc_info=e)
-            return None
+        if self._ac.get_vertical_direction() is not None:
+            return fujitsu_swing_to_ha(
+                self._ac.get_vertical_direction(),
+                self._ac.get_num_vertical_positions(),
+            )
 
     @property
     def swing_modes(self) -> list[str] | None:
         """Return swing modes if supported."""
         if self.swing_mode:
-            total_positions = self._ac.get_num_vertical_swing_positions()
+            total_positions = self._ac.get_num_vertical_positions()
             if total_positions == 8:
                 return SWING_MODES_8
             elif total_positions == 6:
@@ -262,8 +283,8 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     def preset_mode(self) -> str | None:
         """Return the current preset mode."""
 
-        if self._ac.get_minimum_heat() != None:
-            if self._ac.get_minimum_heat() == constants.BooleanDescriptors.ON:
+        if self._ac.get_minimum_heat() is not None:
+            if self._ac.get_minimum_heat():
                 return MINIMUM_HEAT
             else:
                 return PRESET_NONE
@@ -285,12 +306,16 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     async def async_turn_on(self) -> None:
         """Set the HVAC State to on."""
         await self._ac.turn_on()
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
     async def async_turn_off(self) -> None:
         """Set the HVAC State to off."""
         await self._ac.turn_off()
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set the HVAC Mode and State."""
@@ -298,28 +323,37 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
             await self._ac.turn_off()
         else:
             _LOGGER.debug(self._ac.get_device_on_off_state())
-            if self._ac.get_device_on_off_state() == constants.BooleanDescriptors.OFF:
+            if not self._ac.get_device_on_off_state():
                 await self._ac.turn_on()
             await self._ac.set_operation_mode(HA_STATE_TO_FUJITSU[hvac_mode])
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:
         """Set the Fan Mode."""
         await self._ac.set_fan_speed(HA_FAN_TO_FUJITSU[fan_mode])
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
     async def async_set_swing_mode(self, swing_mode: str) -> None:
         if swing_mode == VERTICAL_SWING:
-            await self._ac.set_vertical_swing(constants.BooleanProperty.ON)
+            await self._ac.set_vertical_swing(True)
         else:
-            await self._ac.set_vertical_direction(ha_swing_to_fujitsu(swing_mode))
-        await self.instance.coordinator.async_refresh()  # TODO: see if we can update entity
+            swing_param = ha_swing_to_fujitsu(
+                swing_mode, self._ac.get_num_vertical_positions()
+            )
+            await self._ac.set_vertical_direction(swing_param)
+        await (
+            self.instance.coordinator.async_refresh()
+        )  # TODO: see if we can update entity
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         if preset_mode == MINIMUM_HEAT:
-            await self._ac.set_minimum_heat(constants.BooleanProperty.ON)
+            await self._ac.set_minimum_heat(True)
         else:
-            await self._ac.set_minimum_heat(constants.BooleanProperty.OFF)
+            await self._ac.set_minimum_heat(False)
         await self.instance.coordinator.async_refresh()
 
     @property

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Any
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -11,10 +10,8 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfTemperature
+from homeassistant.const import EntityCategory, UnitOfTemperature
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 from pyairstage import constants
@@ -36,7 +33,7 @@ async def async_setup_entry(
     if devices := instance.coordinator.data:
         for ac_key in devices:
             data = {x["name"]: x for x in devices[ac_key]["parameters"]}
-            if data["iu_indoor_tmp"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+            if "iu_indoor_tmp" in data:
                 entities.append(
                     AirstageTemp(
                         instance,
@@ -45,7 +42,7 @@ async def async_setup_entry(
                         "Indoor",
                     )
                 )
-            if data["iu_outdoor_tmp"]["value"] != constants.CAPABILITY_NOT_AVAILABLE:
+            if "iu_outdoor_tmp" in data:
                 entities.append(
                     AirstageTemp(
                         instance,
@@ -82,7 +79,6 @@ class AirstageTemp(AirstageAcEntity, SensorEntity):
     @property
     def native_value(self) -> Decimal | None:
         """Return the current value of the measured temperature."""
-        # value = self._ac.get_device_parameter(self.parameter)
         if self.parameter is constants.ACParameter.INDOOR_TEMPERATURE:
             value = self._ac.get_display_temperature()
             return Decimal(value) if value is not None else None
