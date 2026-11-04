@@ -3,8 +3,8 @@
 Source: Fujitsu service manual for ASEH..KMCG wall-mounted units, chapter
 "Function settings", plus functions 43 and 95 from other Airstage manuals
 (95: AUU..RLF service manual; setting it resets 30, 31, 92 and 93 to
-"No correction"). Other Airstage indoor units use the same numbers for the same functions, but not
-every unit supports every value.
+"No correction"). Other Airstage indoor units use the same numbers for the
+same functions, but not every unit supports every value.
 """
 
 from __future__ import annotations
