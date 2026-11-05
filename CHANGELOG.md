@@ -1,3 +1,10 @@
+## [1.9.2-beta.2](https://github.com/danielkaldheim/ha_airstage/compare/v1.9.2-beta.1...v1.9.2-beta.2) (2026-11-05)
+
+
+### Bug Fixes
+
+* **refresh:** pyairstage should now properly update state, no refresh required ([95e63ba](https://github.com/danielkaldheim/ha_airstage/commit/95e63ba04170b2b31d85967779834daa27b0b118))
+
 ## [1.9.2-beta.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.9.1...v1.9.2-beta.1) (2026-11-05)
 
 
