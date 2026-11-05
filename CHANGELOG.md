@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.9.0...v1.9.1) (2026-11-05)
+
+
+### Bug Fixes
+
+* **dependency:** pinning pyairstage version due to accidental breaking release ([e22cc19](https://github.com/danielkaldheim/ha_airstage/commit/e22cc19baf1de49845c4243bbd478e2c6491c824))
+
 # [1.9.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.8.4...v1.9.0) (2026-09-14)
 
 
