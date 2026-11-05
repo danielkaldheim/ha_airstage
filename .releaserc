@@ -4,8 +4,8 @@
       "name": "main"
     },
     {
-      "name": "next",
-      "channel": "next"
+      "name": "beta",
+      "channel": "beta"
     }
   ],
   "plugins": [
