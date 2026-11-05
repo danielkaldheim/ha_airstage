@@ -5,7 +5,8 @@
     },
     {
       "name": "beta",
-      "channel": "beta"
+      "channel": "beta",
+      "prerelease": true
     }
   ],
   "plugins": [
