@@ -1,3 +1,11 @@
+## [1.9.1-beta.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.9.0...v1.9.1-beta.1) (2026-11-05)
+
+
+### Bug Fixes
+
+* **cache:** upping to new pyairstage version with reworked caching behavior + altered swing contract ([d1e33cd](https://github.com/danielkaldheim/ha_airstage/commit/d1e33cdfc59b20217ec1a1a24ce9aff3d7819fb4))
+* **dependency:** pinning pyairstage version due to accidental breaking release ([e22cc19](https://github.com/danielkaldheim/ha_airstage/commit/e22cc19baf1de49845c4243bbd478e2c6491c824))
+
 ## [1.9.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.9.0...v1.9.1) (2026-11-05)
 
 
