@@ -60,7 +60,7 @@ appear as diagnostic sensors:
 | Outdoor fan speed | `ou_fan_rot1` | rpm |
 | Operating / compressor / indoor fan / outdoor fan time counter | `iu_eng_time`, `iu_cmp_time`, `iu_fan1_time`, `ou_fan1_time` | unit unconfirmed (probably hours), disabled by default |
 | Expansion valve 1–5 | `ou_exp_vlv1`…`5` | steps; one per indoor unit on multi splits (2–5 disabled by default) |
-| Function setting NN <name> | `iu_fld_setNN` | installer settings 00, 11, 30, 31, 35, 36, 40, 42, 43, 44, 46, 48, 49, 60, 95 (disabled by default, read every ~5 min). State shows code and meaning, e.g. `00 - Standard setting`; attribute `code` holds the bare number, `options` lists all values |
+| Function setting NN <name> | `iu_fld_setNN` | installer settings 00, 11, 30, 31, 33, 35, 36, 40, 42, 43, 44, 46, 48, 49, 60, 95 (disabled by default, read every ~5 min). State shows code and meaning, e.g. `00 - Standard setting`; attribute `code` holds the bare number, `options` lists all values |
 
 Temperatures are reported in 1/100 °C, `65535` means the unit does not provide
 the value. Adapters that do not answer these parameters are detected on the

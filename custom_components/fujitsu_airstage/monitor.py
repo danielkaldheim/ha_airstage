@@ -38,6 +38,9 @@ NOT_AVAILABLE = "65535"
 # with 0013 when none of the extra names is supported.
 ANCHOR = "iu_onoff"
 
+# Maximum number of names the adapter accepts in one GetParam request.
+MAX_NAMES = 20
+
 MONITOR_PARAMETERS: tuple[str, ...] = (
     "iu_suct_tmp",
     "iu_indoor_tmp_crct",
@@ -67,7 +70,7 @@ MONITOR_VALUE_NAMES = frozenset(MONITOR_PARAMETERS) - {"iu_has_srv_mntr"}
 # Function settings documented for Airstage wall-mounted units (see
 # function_settings.py). Must stay below 20 names per request.
 FUNCTION_SETTINGS: tuple[int, ...] = (
-    0, 11, 30, 31, 35, 36, 40, 42, 43, 44, 46, 48, 49, 60, 95
+    0, 11, 30, 31, 33, 35, 36, 40, 42, 43, 44, 46, 48, 49, 60, 95
 )
 
 # Run-time counters (unit unconfirmed, probably hours); read with the
@@ -156,11 +159,19 @@ class MonitorPoller:
             _LOGGER.debug("SetTime response: %s", response)
 
     async def _get(self, names: list[str]) -> dict[str, str]:
-        # Back-to-back requests make the adapter drop the connection, see
-        # pyairstage ApiLocal.get_devices.
-        await asyncio.sleep(1)
-        values = await self.api.get_parameters([ANCHOR, *names])
-        return {k: v for k, v in values.items() if k != ANCHOR}
+        result: dict[str, str] = {}
+        # The adapter accepts at most MAX_NAMES names per request (anchor
+        # included), so split longer lists.
+        size = MAX_NAMES - 1
+        for start in range(0, len(names), size):
+            # Back-to-back requests make the adapter drop the connection, see
+            # pyairstage ApiLocal.get_devices.
+            await asyncio.sleep(1)
+            values = await self.api.get_parameters(
+                [ANCHOR, *names[start : start + size]]
+            )
+            result.update({k: v for k, v in values.items() if k != ANCHOR})
+        return result
 
     async def async_fetch(self) -> dict[str, str]:
         """Return extra parameter values. Never raises."""

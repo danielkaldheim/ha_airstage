@@ -3,8 +3,10 @@
 Source: Fujitsu service manual for ASEH..KMCG wall-mounted units, chapter
 "Function settings", plus functions 43 and 95 from other Airstage manuals
 (95: AUU..RLF service manual; setting it resets 30, 31, 92 and 93 to
-"No correction"). Other Airstage indoor units use the same numbers for the
-same functions, but not every unit supports every value.
+"No correction"), and function 33 from the Fujitsu General Australia note
+for the ARTG..LHTA ducted range (same meaning observed on wall units).
+Other Airstage indoor units use the same numbers for the same functions,
+but not every unit supports every value.
 """
 
 from __future__ import annotations
@@ -55,6 +57,17 @@ FUNCTION_SETTING_INFO: dict[int, FunctionSetting] = {
     ),
     31: FunctionSetting(
         "Room temperature correction indoor unit sensor (heating)", _CORRECTION
+    ),
+    33: FunctionSetting(
+        "Heating thermostat-off indoor fan control",
+        {
+            0: "Intermittent, stop 6/10/17 min",
+            1: "Intermittent, stop 6 min",
+            2: "Intermittent short, stop 4/6/10 min",
+            3: "Intermittent long, stop 8/15/27 min",
+            4: "Fan stop",
+            5: "Continuous",
+        },
     ),
     35: FunctionSetting(
         "Room temperature correction wired remote sensor (cooling)", _CORRECTION
