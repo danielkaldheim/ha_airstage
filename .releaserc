@@ -5,6 +5,7 @@
     },
     {
       "name": "next",
+      "prerelease": "next",
       "channel": "next"
     }
   ],
