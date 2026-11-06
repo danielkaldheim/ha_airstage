@@ -1,3 +1,10 @@
+## [1.9.2-beta.3](https://github.com/danielkaldheim/ha_airstage/compare/v1.9.2-beta.2...v1.9.2-beta.3) (2026-11-06)
+
+
+### Bug Fixes
+
+* **sensors:** restoring sensor instantiation ([8dba40d](https://github.com/danielkaldheim/ha_airstage/commit/8dba40d53c9b12fb58803446b00011f32556ca28))
+
 ## [1.9.2-beta.2](https://github.com/danielkaldheim/ha_airstage/compare/v1.9.2-beta.1...v1.9.2-beta.2) (2026-11-05)
 
 
