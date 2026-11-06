@@ -161,7 +161,7 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
 
     _enable_turn_on_off_backwards_compatibility = False
 
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_target_temperature_step = 0.5
     _attr_name = None
     _turn_on_before_set_temp = False
@@ -187,15 +187,15 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         )
 
     @property
-    def target_temperature(self) -> float | None:
+    def native_target_temperature(self) -> float | None:
         """Return the current target temperature."""
         target_temp = self._ac.get_target_temperature()
-        if (
-            self.hvac_mode == HVACMode.FAN_ONLY
-            or target_temp is None
-            or int(target_temp) >= 6000
-        ):
-            return self.current_temperature
+        # if (
+        #     self.hvac_mode == HVACMode.FAN_ONLY
+        #     or target_temp is None
+        #     or int(target_temp) >= 6000
+        # ):
+        #     return self.current_temperature
         return target_temp
 
     @property
@@ -218,18 +218,12 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         if new_hvac_mode is not None and new_hvac_mode != self.hvac_mode:
             # TODO: come up with multi-set option through pyairstage
             await self._ac.set_operation_mode(HA_STATE_TO_FUJITSU[new_hvac_mode])
-            await (
-                self.instance.coordinator.async_refresh()
-            )  # TODO: see if we can update entity
 
         if self.hvac_mode != HVACMode.FAN_ONLY:
             await self._ac.set_target_temperature(kwargs.get(ATTR_TEMPERATURE))
-            await (
-                self.instance.coordinator.async_refresh()
-            )  # TODO: see if we can update entity
 
     @property
-    def current_temperature(self) -> float | None:
+    def native_current_temperature(self) -> float | None:
         """Return the current temperature."""
         return self._ac.get_display_temperature()
 
@@ -306,16 +300,10 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
     async def async_turn_on(self) -> None:
         """Set the HVAC State to on."""
         await self._ac.turn_on()
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
 
     async def async_turn_off(self) -> None:
         """Set the HVAC State to off."""
         await self._ac.turn_off()
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set the HVAC Mode and State."""
@@ -326,16 +314,12 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
             if not self._ac.get_device_on_off_state():
                 await self._ac.turn_on()
             await self._ac.set_operation_mode(HA_STATE_TO_FUJITSU[hvac_mode])
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
+        # modes impact other parameters, so this warrants a refresh
+        await self.instance.coordinator.async_refresh()
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:
         """Set the Fan Mode."""
         await self._ac.set_fan_speed(HA_FAN_TO_FUJITSU[fan_mode])
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
 
     async def async_set_swing_mode(self, swing_mode: str) -> None:
         if swing_mode == VERTICAL_SWING:
@@ -345,16 +329,12 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
                 swing_mode, self._ac.get_num_vertical_positions()
             )
             await self._ac.set_vertical_direction(swing_param)
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         if preset_mode == MINIMUM_HEAT:
             await self._ac.set_minimum_heat(True)
         else:
             await self._ac.set_minimum_heat(False)
-        await self.instance.coordinator.async_refresh()
 
     @property
     def supported_features(self) -> ClimateEntityFeature:

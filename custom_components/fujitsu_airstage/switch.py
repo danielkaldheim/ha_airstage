@@ -6,7 +6,12 @@ from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from pyairstage import constants
+from pyairstage.constants import (
+    CAPABILITY_NOT_AVAILABLE,
+    ACParameter,
+    FanSpeed,
+    FanSpeedDescriptors,
+)
 
 from .const import DOMAIN as AIRSTAGE_DOMAIN
 from .entity import AirstageAcEntity
@@ -27,19 +32,40 @@ async def async_setup_entry(
         for ac_key in devices:
             entities.append(AirstagePowerSwitch(instance, ac_key))
             data = {x["name"]: x for x in devices[ac_key]["parameters"]}
-            if "iu_economy" in data:
+            if (
+                data[ACParameter.ECONOMY_MODE].get("value", CAPABILITY_NOT_AVAILABLE)
+                != CAPABILITY_NOT_AVAILABLE
+            ):
                 entities.append(AirstageEcoSwitch(instance, ac_key))
-            if "iu_powerful" in data:
+            if (
+                data[ACParameter.POWERFUL_MODE].get("value", CAPABILITY_NOT_AVAILABLE)
+                != CAPABILITY_NOT_AVAILABLE
+            ):
                 entities.append(AirstagePowerfulSwitch(instance, ac_key))
-            if "ou_low_noise" in data:
+            if (
+                data[ACParameter.OUTDOOR_LOW_NOISE].get(
+                    "value", CAPABILITY_NOT_AVAILABLE
+                )
+                != CAPABILITY_NOT_AVAILABLE
+            ):
                 entities.append(AirstageOutdoorLowNoiseSwitch(instance, ac_key))
-            if "iu_fan_ctrl" in data:
+            if (
+                data[ACParameter.ENERGY_SAVE_FAN].get("value", CAPABILITY_NOT_AVAILABLE)
+                != CAPABILITY_NOT_AVAILABLE
+            ):
                 entities.append(AirstageEnergySaveFanSwitch(instance, ac_key))
-            if "iu_fan_ctrl" in data:
                 entities.append(AirstageQuietFanSwitch(instance, ac_key))
-            if "iu_fan_ctrl" in data:
+            if (
+                data[ACParameter.INDOOR_LED].get("value", CAPABILITY_NOT_AVAILABLE)
+                != CAPABILITY_NOT_AVAILABLE
+            ):
                 entities.append(AirstageIndoorLedSwitch(instance, ac_key))
-            if "iu_hmn_det_auto_save" in data:
+            if (
+                data[ACParameter.HMN_DETECTION_AUTO_SAVE].get(
+                    "value", CAPABILITY_NOT_AVAILABLE
+                )
+                != CAPABILITY_NOT_AVAILABLE
+            ):
                 entities.append(AirstageHumanDetectionAutoSaveSwitch(instance, ac_key))
 
     async_add_entities(entities)
@@ -65,16 +91,10 @@ class AirstageEcoSwitch(AirstageAcEntity, SwitchEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn eco mode on."""
         await self._ac.set_economy_mode(True)
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn eco mode off."""
         await self._ac.set_economy_mode(False)
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
 
 
 class AirstagePowerfulSwitch(AirstageAcEntity, SwitchEntity):
@@ -97,16 +117,10 @@ class AirstagePowerfulSwitch(AirstageAcEntity, SwitchEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn powerful on."""
         await self._ac.set_powerful_mode(True)
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn powerful off."""
         await self._ac.set_powerful_mode(False)
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
 
 
 class AirstageOutdoorLowNoiseSwitch(AirstageAcEntity, SwitchEntity):
@@ -129,16 +143,10 @@ class AirstageOutdoorLowNoiseSwitch(AirstageAcEntity, SwitchEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn outdoor unit low noise" on."""
         await self._ac.set_outdoor_low_noise(True)
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn outdoor unit low noise" off."""
         await self._ac.set_outdoor_low_noise(False)
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
 
 
 class AirstageEnergySaveFanSwitch(AirstageAcEntity, SwitchEntity):
@@ -161,16 +169,10 @@ class AirstageEnergySaveFanSwitch(AirstageAcEntity, SwitchEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn energy saving fan on."""
         await self._ac.set_energy_save_fan(True)
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn energy saving fan off."""
         await self._ac.set_energy_save_fan(False)
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
 
 
 class AirstageQuietFanSwitch(AirstageAcEntity, SwitchEntity):
@@ -188,21 +190,15 @@ class AirstageQuietFanSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the quiet fan status."""
-        return self._ac.get_fan_speed() == constants.FanSpeedDescriptors.QUIET
+        return self._ac.get_fan_speed() == FanSpeedDescriptors.QUIET
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn quiet fan on."""
-        await self._ac.set_fan_speed(constants.FanSpeed.QUIET)
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
+        await self._ac.set_fan_speed(FanSpeed.QUIET)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn quiet fan off."""
-        await self._ac.set_fan_speed(constants.FanSpeed.AUTO)
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
+        await self._ac.set_fan_speed(FanSpeed.AUTO)
 
 
 class AirstageIndoorLedSwitch(AirstageAcEntity, SwitchEntity):
@@ -231,16 +227,10 @@ class AirstageIndoorLedSwitch(AirstageAcEntity, SwitchEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn energy saving fan on."""
         await self._ac.set_indoor_led(True)
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn energy saving fan off."""
         await self._ac.set_indoor_led(False)
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
 
 
 class AirstagePowerSwitch(AirstageAcEntity, SwitchEntity):
@@ -257,7 +247,8 @@ class AirstagePowerSwitch(AirstageAcEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return the power status."""
-        return self._ac.get_device_on_off_state()
+        result = self._ac.get_device_on_off_state()
+        return result
 
     @property
     def icon(self) -> str:
@@ -269,16 +260,10 @@ class AirstagePowerSwitch(AirstageAcEntity, SwitchEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn power on."""
         await self._ac.turn_on()
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn power off."""
         await self._ac.turn_off()
-        await (
-            self.instance.coordinator.async_refresh()
-        )  # TODO: see if we can update entity
 
 
 class AirstageHumanDetectionAutoSaveSwitch(AirstageAcEntity, SwitchEntity):
@@ -301,9 +286,7 @@ class AirstageHumanDetectionAutoSaveSwitch(AirstageAcEntity, SwitchEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn Human Detection Auto Save on."""
         await self._ac.set_hmn_detection_auto_save(True)
-        await self.instance.coordinator.async_refresh()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn Human Detection Auto Save off."""
         await self._ac.set_hmn_detection_auto_save(False)
-        await self.instance.coordinator.async_refresh()

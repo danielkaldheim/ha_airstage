@@ -1,9 +1,21 @@
 """Binary sensor platform for Airstage integration."""
 
-from homeassistant.components.binary_sensor import BinarySensorEntity
+import logging
+from typing import Any
+
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+)
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from pyairstage import constants
+
+from .const import DOMAIN as AIRSTAGE_DOMAIN
+from .entity import AirstageAcEntity
+from .models import AirstageData
 
 
 async def async_setup_entry(
@@ -13,7 +25,7 @@ async def async_setup_entry(
 ) -> None:
     """Set up Binary sensor platform."""
 
-    # instance: AirstageData = hass.data[AIRSTAGE_DOMAIN][config_entry.entry_id]
+    instance: AirstageData = hass.data[AIRSTAGE_DOMAIN][config_entry.entry_id]
 
     entities: list[BinarySensorEntity] = []
     # if devices := instance.coordinator.data:
@@ -41,4 +53,4 @@ async def async_setup_entry(
 #     @property
 #     def is_on(self) -> bool:
 #         """Return the occupancy status."""
-#         return self._ac.get_human_detection()
+#         return self._ac.get_human_detection() == constants.BooleanDescriptors.ON

@@ -6,7 +6,6 @@ import logging
 from ipaddress import ip_address
 from typing import Any
 
-import pyairstage.airstageApi as airstage_api
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import (
@@ -20,6 +19,8 @@ from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.service_info.dhcp import DhcpServiceInfo
+from pyairstage import constants
+from pyairstage.airstageApi import AirstageApi, ApiCloud, ApiError, ApiLocal
 
 from .const import (
     AIRSTAGE_LOCAL_RETRY,
@@ -138,14 +139,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         # Test to see if we can connect to the device
         try:
-            hub = airstage_api.ApiLocal(
+            hub = ApiLocal(
                 session=async_get_clientsession(self.hass),
                 retry=AIRSTAGE_LOCAL_RETRY,
                 device_id=user_data[CONF_DEVICE_ID],
                 ip_address=user_data[CONF_IP_ADDRESS],
                 use_https=user_data[CONF_USE_HTTPS],
             )
-            if not await hub.get_parameters(["iu_model"]):
+            if not await hub.get_parameters([constants.ACParameter.MODEL]):
                 return self.async_abort(reason="not_a_fujitsu_airstage")
         except Exception:  # pylint: disable=broad-except
             _LOGGER.exception("Unexpected exception")
@@ -193,7 +194,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if not errors:
                 # Attempt connection
                 try:
-                    hub = airstage_api.ApiLocal(
+                    hub = ApiLocal(
                         session=async_get_clientsession(self.hass),
                         retry=AIRSTAGE_LOCAL_RETRY,
                         device_id=user_input[CONF_DEVICE_ID],
@@ -201,9 +202,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         use_https=user_input[CONF_USE_HTTPS],
                     )
 
-                    if not await hub.get_parameters(["iu_model"]):
+                    if not await hub.get_parameters([constants.ACParameter.MODEL]):
                         raise InvalidAuth
-                except airstage_api.ApiError as e:
+                except ApiError as e:
                     errors["base"] = "cannot_connect"
                     _LOGGER.warning(errors["base"], exc_info=e)
                 except CannotConnect as e:
@@ -233,7 +234,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 # Attempt cloud connection
                 try:
-                    hub = airstage_api.ApiCloud(
+                    hub = ApiCloud(
                         "eu",
                         session=async_get_clientsession(self.hass),
                         retry=AIRSTAGE_RETRY,
@@ -244,7 +245,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                     if not await hub.authenticate():
                         raise InvalidAuth
-                except airstage_api.ApiError:
+                except ApiError:
                     errors["base"] = "cannot_connect"
                 except CannotConnect:
                     errors["base"] = "cannot_connect"
@@ -292,7 +293,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if not errors:
                 try:
                     # Attempt to connect
-                    hub = airstage_api.ApiLocal(
+                    hub = ApiLocal(
                         session=async_get_clientsession(self.hass),
                         retry=AIRSTAGE_LOCAL_RETRY,
                         device_id=user_input[CONF_DEVICE_ID],
@@ -300,9 +301,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         use_https=user_input[CONF_USE_HTTPS],
                     )
 
-                    if not await hub.get_parameters(["iu_model"]):
+                    if not await hub.get_parameters([constants.ACParameter.MODEL]):
                         raise InvalidAuth
-                except airstage_api.ApiError as e:
+                except ApiError as e:
                     errors["base"] = "cannot_connect"
                     _LOGGER.debug(errors["base"], exc_info=e)
                 except CannotConnect as e:

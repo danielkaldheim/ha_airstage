@@ -14,7 +14,7 @@ from homeassistant.const import EntityCategory, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
-from pyairstage import constants
+from pyairstage.constants import CAPABILITY_NOT_AVAILABLE, ACParameter
 
 from .const import DOMAIN as AIRSTAGE_DOMAIN
 from .entity import AirstageAcEntity
@@ -33,21 +33,31 @@ async def async_setup_entry(
     if devices := instance.coordinator.data:
         for ac_key in devices:
             data = {x["name"]: x for x in devices[ac_key]["parameters"]}
-            if "iu_indoor_tmp" in data:
+            if (
+                data[ACParameter.INDOOR_TEMPERATURE].get(
+                    "value", CAPABILITY_NOT_AVAILABLE
+                )
+                != CAPABILITY_NOT_AVAILABLE
+            ):
                 entities.append(
                     AirstageTemp(
                         instance,
                         ac_key,
-                        constants.ACParameter.INDOOR_TEMPERATURE,
+                        ACParameter.INDOOR_TEMPERATURE,
                         "Indoor",
                     )
                 )
-            if "iu_outdoor_tmp" in data:
+            if (
+                data[ACParameter.OUTDOOR_TEMPERATURE].get(
+                    "value", CAPABILITY_NOT_AVAILABLE
+                )
+                != CAPABILITY_NOT_AVAILABLE
+            ):
                 entities.append(
                     AirstageTemp(
                         instance,
                         ac_key,
-                        constants.ACParameter.OUTDOOR_TEMPERATURE,
+                        ACParameter.OUTDOOR_TEMPERATURE,
                         "Outdoor",
                     )
                 )
@@ -67,7 +77,7 @@ class AirstageTemp(AirstageAcEntity, SensorEntity):
         self,
         instance: AirstageData,
         ac_key: str,
-        parameter: constants.ACParameter,
+        parameter: ACParameter,
         name: str,
     ) -> None:
         """Initialize an Airstage Temp Sensor."""
@@ -79,10 +89,10 @@ class AirstageTemp(AirstageAcEntity, SensorEntity):
     @property
     def native_value(self) -> Decimal | None:
         """Return the current value of the measured temperature."""
-        if self.parameter is constants.ACParameter.INDOOR_TEMPERATURE:
+        if self.parameter is ACParameter.INDOOR_TEMPERATURE:
             value = self._ac.get_display_temperature()
             return Decimal(value) if value is not None else None
 
-        if self.parameter is constants.ACParameter.OUTDOOR_TEMPERATURE:
+        if self.parameter is ACParameter.OUTDOOR_TEMPERATURE:
             value = self._ac.get_outdoor_temperature()
             return Decimal(value) if value is not None else None
