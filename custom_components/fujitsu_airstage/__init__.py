@@ -6,7 +6,6 @@ import logging
 from datetime import timedelta
 
 import aiohttp
-import pyairstage.airstageApi as airstage_api
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_COUNTRY,
@@ -19,6 +18,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from pyairstage.airstageApi import ApiCloud, ApiError, ApiLocal
 
 from .const import (
     AIRSTAGE_LOCAL_RETRY,
@@ -46,7 +46,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Airstage Fujitsu from a config entry."""
 
     if CONF_USERNAME in entry.data:
-        apiCloud = airstage_api.ApiCloud(
+        apiCloud = ApiCloud(
             "eu",
             session=async_get_clientsession(hass),
             retry=AIRSTAGE_RETRY,
@@ -67,7 +67,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         async def async_get():
             try:
                 return await apiCloud.get_devices()
-            except airstage_api.ApiError as err:
+            except ApiError as err:
                 raise UpdateFailed(
                     f"Connection error while connecting to Fujitsu Cloud: {err}"
                 ) from err
@@ -89,7 +89,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device_id = entry.data[CONF_DEVICE_ID]
         device_ip = entry.data[CONF_IP_ADDRESS]
         use_https = entry.data.get(CONF_USE_HTTPS, False)
-        apiLocal = airstage_api.ApiLocal(
+        apiLocal = ApiLocal(
             session=async_get_clientsession(hass),
             retry=AIRSTAGE_LOCAL_RETRY,
             timeout_seconds=AIRSTAGE_LOCAL_TIMEOUT_SECONDS,
@@ -112,7 +112,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 return await apiLocal.get_devices()
             except (
                 TimeoutError,
-                airstage_api.ApiError,
+                ApiError,
                 aiohttp.ServerTimeoutError,
             ) as err:
                 raise UpdateFailed(

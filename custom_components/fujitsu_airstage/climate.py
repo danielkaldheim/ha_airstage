@@ -161,7 +161,7 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
 
     _enable_turn_on_off_backwards_compatibility = False
 
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_target_temperature_step = 0.5
     _attr_name = None
     _turn_on_before_set_temp = False
@@ -187,15 +187,15 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         )
 
     @property
-    def target_temperature(self) -> float | None:
+    def native_target_temperature(self) -> float | None:
         """Return the current target temperature."""
         target_temp = self._ac.get_target_temperature()
-        if (
-            self.hvac_mode == HVACMode.FAN_ONLY
-            or target_temp is None
-            or int(target_temp) >= 6000
-        ):
-            return self.current_temperature
+        # if (
+        #     self.hvac_mode == HVACMode.FAN_ONLY
+        #     or target_temp is None
+        #     or int(target_temp) >= 6000
+        # ):
+        #     return self.current_temperature
         return target_temp
 
     @property
@@ -223,7 +223,7 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
             await self._ac.set_target_temperature(kwargs.get(ATTR_TEMPERATURE))
 
     @property
-    def current_temperature(self) -> float | None:
+    def native_current_temperature(self) -> float | None:
         """Return the current temperature."""
         return self._ac.get_display_temperature()
 
@@ -314,6 +314,8 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
             if not self._ac.get_device_on_off_state():
                 await self._ac.turn_on()
             await self._ac.set_operation_mode(HA_STATE_TO_FUJITSU[hvac_mode])
+        # modes impact other parameters, so this warrants a refresh
+        await self.instance.coordinator.async_refresh()
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:
         """Set the Fan Mode."""
