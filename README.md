@@ -39,3 +39,35 @@ To add a local device you need the IP Address and Device ID. On my device the MA
 The device id is the same as the MAC address exept the ":". Or you can scan the wifi SSID and remove the "AP-WH3X-" the device id is the last 12 characters.
 
 ![Local mode](./docs/Screenshot-step2-local.png)
+
+## Service monitor and function settings (local mode)
+
+In local mode the integration also reads the adapter's *service monitor* values
+and the indoor unit's function settings, when the adapter provides them. They
+appear as diagnostic sensors:
+
+| Sensor | Parameter | Notes |
+|---|---|---|
+| Compressor frequency | `ou_cmp_freq` | Hz (rps); empty while the compressor is off |
+| Outdoor unit current | `ou_current` | reported in 1/100 |
+| Intake temperature | `iu_suct_tmp` | raw intake thermistor |
+| Corrected intake temperature | `iu_indoor_tmp_crct` | after the unit's room temperature correction |
+| Indoor heat exchanger temperature | `iu_heat_ex_tmp` | |
+| Indoor fan speed | `iu_fan_rot1` | rpm |
+| Outdoor heat exchanger / air / discharge temperature | `ou_heat_ex_tmp`, `ou_outdoor_tmp`, `ou_disc_tmp` | |
+| 4-way valve | `ou_four_way_vlv` | changes during defrost |
+| Outdoor heat exchanger outlet temperature | `ou_heat_ex_tmp_out` | |
+| Outdoor fan speed | `ou_fan_rot1` | rpm |
+| Operating / compressor / indoor fan / outdoor fan time counter | `iu_eng_time`, `iu_cmp_time`, `iu_fan1_time`, `ou_fan1_time` | unit unconfirmed (probably hours), disabled by default |
+| Expansion valve 1–5 | `ou_exp_vlv1`…`5` | steps; one per indoor unit on multi splits (2–5 disabled by default) |
+| Function setting NN <name> | `iu_fld_setNN` | installer settings 00, 11, 30, 31, 33, 35, 36, 40, 42, 43, 44, 46, 48, 49, 60, 95 (disabled by default, read every ~5 min). State shows code and meaning, e.g. `00 - Standard setting`; attribute `code` holds the bare number, `options` lists all values |
+
+Temperatures are reported in 1/100 °C, `65535` means the unit does not provide
+the value. Adapters that do not answer these parameters are detected on the
+first update and not polled again.
+
+After a power cycle the adapter has no clock and stops refreshing the service
+monitor: intake and coil read a fixed 20.00 °C and the outdoor values stay
+empty. The integration detects this, hides those values and sends the
+adapter the current time (`/SetTime`, as the Airstage app does), after which
+the values come back within a few minutes.

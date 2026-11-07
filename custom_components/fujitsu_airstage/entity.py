@@ -12,6 +12,23 @@ from .const import DOMAIN
 from .models import AirstageData
 
 
+def _version_info(device: dict) -> dict[str, str]:
+    """Return firmware versions for the device registry (local mode only)."""
+    values = {
+        p["name"]: p["value"]
+        for p in device.get("parameters", [])
+        if p.get("value") not in (None, "", "65535")
+    }
+    info: dict[str, str] = {}
+    if main := values.get("iu_main_ver"):
+        eeprom = values.get("iu_eep_ver")
+        info["sw_version"] = f"{main} (EEPROM {eeprom})" if eeprom else main
+    if wla := values.get("wla_main_ver"):
+        model = values.get("wla_model")
+        info["hw_version"] = f"WLAN adapter {model} {wla}" if model else f"WLAN adapter {wla}"
+    return info
+
+
 class AirstageEntity(CoordinatorEntity):
     """Parent class for Airstage Entities."""
 
@@ -54,6 +71,7 @@ class AirstageAcEntity(AirstageEntity):
             manufacturer="Fujitsu Airstage",
             model=self.coordinator.data[self.ac_key]["model"],
             name=self.coordinator.data[self.ac_key]["deviceName"],
+            **_version_info(self.coordinator.data[self.ac_key]),
         )
 
         self.async_update_ac = self.update_handle_factory(instance.api.get_devices)
