@@ -17,6 +17,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
     REVOLUTIONS_PER_MINUTE,
+    SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
     EntityCategory,
     UnitOfElectricCurrent,
     UnitOfFrequency,
@@ -216,6 +217,15 @@ MONITOR_SENSORS: tuple[AirstageMonitorSensorDescription, ...] = (
             entity_registry_enabled_default=n == 1,
         )
         for n in range(1, 6)
+    ),
+    # Wi-Fi signal of the adapter, read every few minutes with the settings.
+    AirstageMonitorSensorDescription(
+        key="wla_rssi",
+        name="Wi-Fi signal",
+        native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+        device_class=SensorDeviceClass.SIGNAL_STRENGTH,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_registry_enabled_default=False,
     ),
     # Run-time counters; unit not confirmed (probably hours), so no unit.
     *(

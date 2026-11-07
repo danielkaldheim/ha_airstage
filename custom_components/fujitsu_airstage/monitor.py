@@ -82,6 +82,14 @@ COUNTER_PARAMETERS: tuple[str, ...] = (
     "ou_fan1_time",
 )
 
+# Firmware versions of the indoor unit; read with the function settings
+# (fits in the same requests, no extra call).
+VERSION_PARAMETERS: tuple[str, ...] = ("iu_main_ver", "iu_eep_ver")
+
+# Values of the wireless LAN adapter itself, read with the function settings.
+# The adapter answers these on device_sub_id 1, some as JSON numbers.
+ADAPTER_PARAMETERS: tuple[str, ...] = ("wla_rssi", "wla_main_ver", "wla_model")
+
 # Values the adapter reports before it has read the service monitor.
 PLACEHOLDER = {"iu_suct_tmp": "2000", "iu_heat_ex_tmp": "2000", "ou_cmp_freq": ""}
 
@@ -217,6 +225,7 @@ class MonitorPoller:
                 values = await self._get(
                     [function_setting_name(n) for n in FUNCTION_SETTINGS]
                     + list(COUNTER_PARAMETERS)
+                    + list(VERSION_PARAMETERS)
                 )
             except Exception as err:  # noqa: BLE001
                 _LOGGER.debug("Function settings not available: %s", err)
@@ -232,6 +241,19 @@ class MonitorPoller:
                 for name, value in values.items():
                     if value != "" or name not in self._functions:
                         self._functions[name] = value
+
+        if recheck:
+            try:
+                await asyncio.sleep(1)
+                values = await self.api.get_parameters(
+                    list(ADAPTER_PARAMETERS), device_sub_id=1
+                )
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.debug("Adapter values not available: %s", err)
+            else:
+                for name in ADAPTER_PARAMETERS:
+                    if name in values:
+                        self._functions[name] = str(values[name])
 
         self._cycle += 1
         result.update(self._functions)
