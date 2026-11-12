@@ -5,7 +5,6 @@
     },
     {
       "name": "beta",
-      "channel": "beta",
       "prerelease": true
     }
   ],
