@@ -35,7 +35,7 @@ HA_STATE_TO_FUJITSU = {
     HVACMode.DRY: constants.OperationMode.DRY,
     HVACMode.COOL: constants.OperationMode.COOL,
     HVACMode.HEAT: constants.OperationMode.HEAT,
-    HVACMode.AUTO: constants.OperationMode.AUTO,
+    HVACMode.HEAT_COOL: constants.OperationMode.AUTO,
 }
 
 
@@ -44,7 +44,7 @@ FUJITSU_TO_HA_STATE = {
     constants.OperationModeDescriptors.DRY: HVACMode.DRY,
     constants.OperationModeDescriptors.COOL: HVACMode.COOL,
     constants.OperationModeDescriptors.HEAT: HVACMode.HEAT,
-    constants.OperationModeDescriptors.AUTO: HVACMode.AUTO,
+    constants.OperationModeDescriptors.AUTO: HVACMode.HEAT_COOL,
     constants.OperationModeDescriptors.OFF: HVACMode.OFF,
     None: None,
 }
@@ -175,7 +175,7 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         HVACMode.HEAT,
         HVACMode.FAN_ONLY,
         HVACMode.DRY,
-        HVACMode.AUTO,
+        HVACMode.HEAT_COOL,
     ]
 
     def __init__(
