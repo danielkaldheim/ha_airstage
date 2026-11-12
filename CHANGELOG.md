@@ -1,3 +1,10 @@
+## [1.9.4](https://github.com/danielkaldheim/ha_airstage/compare/v1.9.3...v1.9.4) (2026-11-12)
+
+
+### Bug Fixes
+
+* **swing:** rephrasing vertical swing to use HA constant [#137](https://github.com/danielkaldheim/ha_airstage/issues/137) ([6a45984](https://github.com/danielkaldheim/ha_airstage/commit/6a4598483fb2ad8064c4149b8b972ea3c49fa47a))
+
 ## [1.9.3](https://github.com/danielkaldheim/ha_airstage/compare/v1.9.2...v1.9.3) (2026-11-12)
 
 
