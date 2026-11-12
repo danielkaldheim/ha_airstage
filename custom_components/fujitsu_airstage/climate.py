@@ -13,10 +13,10 @@ from homeassistant.components.climate import (
     FAN_HIGH,
     FAN_LOW,
     FAN_MEDIUM,
-    PRESET_NONE,
     PRESET_AWAY,
     PRESET_BOOST,
     PRESET_ECO,
+    PRESET_NONE,
     SWING_VERTICAL,
     ClimateEntity,
     ClimateEntityFeature,
@@ -28,9 +28,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from pyairstage import constants
 
-from .const import CONF_TURN_ON_BEFORE_SET_TEMP, MINIMUM_HEAT
+from .const import CONF_TURN_ON_BEFORE_SET_TEMP
 from .const import DOMAIN as AIRSTAGE_DOMAIN
-from .const import FAN_QUIET
+from .const import FAN_QUIET, MINIMUM_HEAT
 from .entity import AirstageAcEntity
 from .models import AirstageData
 
