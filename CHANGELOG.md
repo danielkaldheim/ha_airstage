@@ -1,3 +1,15 @@
+# [1.10.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.9.4...v1.10.0) (2026-11-12)
+
+
+### Bug Fixes
+
+* **modes:** HA defines auto as 'The device follows a schedule, learned behavior, or its own logic. You cannot set a temperature in this mode.'. That is not what these devices do, these devices are HEAT_COOL ([afa6d95](https://github.com/danielkaldheim/ha_airstage/commit/afa6d954acbc965b183443a10e861f86eb9421e0))
+
+
+### Features
+
+* **modes:** adding boost & eco modes [#6](https://github.com/danielkaldheim/ha_airstage/issues/6) [#125](https://github.com/danielkaldheim/ha_airstage/issues/125) ([5d210b9](https://github.com/danielkaldheim/ha_airstage/commit/5d210b9a33220fae11c94125dea6453d720f8cb4))
+
 ## [1.9.4](https://github.com/danielkaldheim/ha_airstage/compare/v1.9.3...v1.9.4) (2026-11-12)
 
 
