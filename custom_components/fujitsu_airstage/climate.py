@@ -13,6 +13,7 @@ from homeassistant.components.climate import (
     FAN_LOW,
     FAN_MEDIUM,
     PRESET_NONE,
+    SWING_VERTICAL,
     ClimateEntity,
     ClimateEntityFeature,
     HVACMode,
@@ -25,7 +26,7 @@ from pyairstage import constants
 
 from .const import CONF_TURN_ON_BEFORE_SET_TEMP
 from .const import DOMAIN as AIRSTAGE_DOMAIN
-from .const import FAN_QUIET, MINIMUM_HEAT, VERTICAL_SWING
+from .const import FAN_QUIET, MINIMUM_HEAT
 from .entity import AirstageAcEntity
 from .models import AirstageData
 
@@ -101,7 +102,7 @@ class VerticalSwingPositions(enum.StrEnum):
 
 
 SWING_MODES_4 = [
-    VERTICAL_SWING,
+    SWING_VERTICAL,
     VerticalSwingPositions.HIGHEST,
     VerticalSwingPositions.HIGH,
     VerticalSwingPositions.LOW,
@@ -109,7 +110,7 @@ SWING_MODES_4 = [
 ]
 
 SWING_MODES_6 = [
-    VERTICAL_SWING,
+    SWING_VERTICAL,
     VerticalSwingPositions.HIGHEST,
     VerticalSwingPositions.HIGH,
     VerticalSwingPositions.CENTER_HIGH,
@@ -119,7 +120,7 @@ SWING_MODES_6 = [
 ]
 
 SWING_MODES_8 = [
-    VERTICAL_SWING,
+    SWING_VERTICAL,
     VerticalSwingPositions.HIGHEST,
     VerticalSwingPositions.HIGHER,
     VerticalSwingPositions.HIGH,
@@ -248,7 +249,7 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         """
 
         if self._ac.get_vertical_swing() is not None and self._ac.get_vertical_swing():
-            return VERTICAL_SWING
+            return SWING_VERTICAL
 
         if self._ac.get_vertical_direction() is not None:
             return fujitsu_swing_to_ha(
@@ -322,7 +323,7 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         await self._ac.set_fan_speed(HA_FAN_TO_FUJITSU[fan_mode])
 
     async def async_set_swing_mode(self, swing_mode: str) -> None:
-        if swing_mode == VERTICAL_SWING:
+        if swing_mode == SWING_VERTICAL:
             await self._ac.set_vertical_swing(True)
         else:
             swing_param = ha_swing_to_fujitsu(
