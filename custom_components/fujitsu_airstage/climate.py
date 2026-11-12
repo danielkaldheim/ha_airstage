@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import enum
 import logging
 from typing import Any
@@ -13,6 +14,9 @@ from homeassistant.components.climate import (
     FAN_LOW,
     FAN_MEDIUM,
     PRESET_NONE,
+    PRESET_AWAY,
+    PRESET_BOOST,
+    PRESET_ECO,
     SWING_VERTICAL,
     ClimateEntity,
     ClimateEntityFeature,
@@ -24,9 +28,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from pyairstage import constants
 
-from .const import CONF_TURN_ON_BEFORE_SET_TEMP
+from .const import CONF_TURN_ON_BEFORE_SET_TEMP, MINIMUM_HEAT
 from .const import DOMAIN as AIRSTAGE_DOMAIN
-from .const import FAN_QUIET, MINIMUM_HEAT
+from .const import FAN_QUIET
 from .entity import AirstageAcEntity
 from .models import AirstageData
 
@@ -275,24 +279,32 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
         return None
 
     @property
-    def preset_mode(self) -> str | None:
+    def preset_mode(self) -> str:
         """Return the current preset mode."""
 
-        if self._ac.get_minimum_heat() is not None:
-            if self._ac.get_minimum_heat():
-                return MINIMUM_HEAT
-            else:
-                return PRESET_NONE
-        return None
+        if self._ac.get_minimum_heat():
+            return PRESET_AWAY
+        if self._ac.get_economy_mode():
+            return PRESET_ECO
+        if self._ac.get_powerful_mode():
+            return PRESET_BOOST
+        return PRESET_NONE
 
     @property
     def preset_modes(self) -> list[str] | None:
         """Return preset modes if supported."""
-        return (
-            [PRESET_NONE, MINIMUM_HEAT]
-            if self._ac.get_minimum_heat() is not None
-            else None
-        )
+        modes = []
+
+        if self._ac.get_powerful_mode() is not None:
+            modes.append(PRESET_BOOST)
+
+        if self._ac.get_economy_mode() is not None:
+            modes.append(PRESET_ECO)
+
+        if self._ac.get_minimum_heat() is not None:
+            modes.append(PRESET_AWAY)
+
+        return [PRESET_NONE, *modes] if modes else None
 
     async def async_update(self) -> None:
         """Retrieve latest state."""
@@ -332,10 +344,28 @@ class AirstageAC(AirstageAcEntity, ClimateEntity):
             await self._ac.set_vertical_direction(swing_param)
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
-        if preset_mode == MINIMUM_HEAT:
-            await self._ac.set_minimum_heat(True)
-        else:
-            await self._ac.set_minimum_heat(False)
+        """Set the preset mode.
+
+        Selecting a preset turns its underlying capability on and the other
+        managed capabilities off, mirroring the mutually exclusive nature of
+        HA's preset_mode. Capabilities not supported by the device are left
+        untouched.
+        """
+        async with asyncio.TaskGroup() as tg:
+            is_power = preset_mode == PRESET_BOOST
+            if self._ac.get_powerful_mode() != (is_power):
+                tg.create_task(self._ac.set_powerful_mode(is_power))
+
+            is_eco = preset_mode == PRESET_ECO
+            if self._ac.get_economy_mode() != (is_eco):
+                tg.create_task(self._ac.set_economy_mode(is_eco))
+
+            # support incoming MINIMUM_HEAT requests for legacy scripts (not sure if HA has guardrails for this though)
+            is_min_heat = preset_mode == PRESET_AWAY or preset_mode == MINIMUM_HEAT
+            if self._ac.get_minimum_heat() != (is_min_heat):
+                tg.create_task(self._ac.set_minimum_heat(is_min_heat))
+
+        # Nothing need to be done for nones, implicit
 
     @property
     def supported_features(self) -> ClimateEntityFeature:
