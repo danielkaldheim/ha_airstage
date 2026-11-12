@@ -1,3 +1,13 @@
+## [1.9.2](https://github.com/danielkaldheim/ha_airstage/compare/v1.9.1...v1.9.2) (2026-11-12)
+
+
+### Bug Fixes
+
+* **cache:** upping to new pyairstage version with reworked caching behavior + altered swing contract ([72a5454](https://github.com/danielkaldheim/ha_airstage/commit/72a54543ce1c0aad76b221ffc9662e4650a47ec3))
+* **refresh:** pyairstage should now properly update state, no refresh required ([95e63ba](https://github.com/danielkaldheim/ha_airstage/commit/95e63ba04170b2b31d85967779834daa27b0b118))
+* **release:** beta should not be a channel ([4c51497](https://github.com/danielkaldheim/ha_airstage/commit/4c514977e3ad5368ba64cdc1113348c5ce783b40))
+* **sensors:** restoring sensor instantiation ([8dba40d](https://github.com/danielkaldheim/ha_airstage/commit/8dba40d53c9b12fb58803446b00011f32556ca28))
+
 ## [1.9.2-beta.3](https://github.com/danielkaldheim/ha_airstage/compare/v1.9.2-beta.2...v1.9.2-beta.3) (2026-11-06)
 
 
