@@ -1,3 +1,10 @@
+## [1.9.3](https://github.com/danielkaldheim/ha_airstage/compare/v1.9.2...v1.9.3) (2026-11-12)
+
+
+### Bug Fixes
+
+* **setup:** [#131](https://github.com/danielkaldheim/ha_airstage/issues/131) fixing error in config flow ([afc604e](https://github.com/danielkaldheim/ha_airstage/commit/afc604ed780ead291eb925b7bd2986af7e342302))
+
 ## [1.9.2](https://github.com/danielkaldheim/ha_airstage/compare/v1.9.1...v1.9.2) (2026-11-12)
 
 
