@@ -271,10 +271,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Set up a new device."""
         errors: dict[str, str] = {}
 
-        if (
-            user_input is not None
-            and CONF_DEVICE_ID in user_input
-            or CONF_IP_ADDRESS in user_input
+        if user_input is not None and (
+            CONF_DEVICE_ID in user_input or CONF_IP_ADDRESS in user_input
         ):
             try:
                 ip_address(user_input[CONF_IP_ADDRESS])
