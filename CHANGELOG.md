@@ -1,3 +1,9 @@
+## [1.10.1](https://github.com/danielkaldheim/ha_airstage/compare/v1.10.0...v1.10.1) (2026-11-23)
+
+### Bug Fixes
+
+* **quiet:** restoring the addition of quiet mode [#141](https://github.com/danielkaldheim/ha_airstage/issues/141) ([09d31c4](https://github.com/danielkaldheim/ha_airstage/commit/09d31c4ecd8515d2d0b3d08cd3fe05c7e80a1e82))
+
 # [1.10.0](https://github.com/danielkaldheim/ha_airstage/compare/v1.9.4...v1.10.0) (2026-11-12)
 
 
