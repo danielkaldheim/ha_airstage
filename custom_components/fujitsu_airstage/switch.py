@@ -54,6 +54,10 @@ async def async_setup_entry(
                 != CAPABILITY_NOT_AVAILABLE
             ):
                 entities.append(AirstageEnergySaveFanSwitch(instance, ac_key))
+            if (
+                data[ACParameter.FAN_SPEED].get("value", CAPABILITY_NOT_AVAILABLE)
+                != CAPABILITY_NOT_AVAILABLE
+            ):
                 entities.append(AirstageQuietFanSwitch(instance, ac_key))
             if (
                 data[ACParameter.INDOOR_LED].get("value", CAPABILITY_NOT_AVAILABLE)
